@@ -1,25 +1,26 @@
 import winston from 'winston';
 import DailyRotateFile from 'winston-daily-rotate-file';
 
+const { combine, timestamp, printf, colorize, align } = winston.format;
+
+const loggerLevel = process.env?.LOG_LEVEL ?? 'info';
 const logger = winston.createLogger({
-  level: 'info',
-  format: winston.format.json(),
-  defaultMeta: { service: 'user-service' },
+  level: loggerLevel,
+  format: combine(
+    colorize({ all: true }),
+    timestamp({
+      format: 'YYYY-MM-DD hh:mm:ss.SSS A',
+    }),
+    align(),
+    printf((info) => `[${info.timestamp}] [LF-BACKEND] - ${info.level} - ${info.message}`),
+  ),
   transports: [
-    //
-    // - Write all logs with importance level of `error` or less to `error.log`
-    // - Write all logs with importance level of `info` or less to `combined.log`
-    //
     new DailyRotateFile({ filename: './logs/error.log', level: 'error' }),
     new DailyRotateFile({ filename: './logs/combined.log' }),
-    new winston.transports.Console({ level: 'info' }),
+    new winston.transports.Console({ level: loggerLevel }),
   ],
 });
 
-//
-// If we're not in production then log to the `console` with the format:
-// `${info.level}: ${info.message} JSON.stringify({ ...rest }) `
-//
 if (process.env.NODE_ENV !== 'production') {
   logger.add(
     new winston.transports.Console({
