@@ -3,73 +3,52 @@ import Layout from '../../../components/Layout';
 import PageTitle from '../../../components/PageTitle/v2';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
-import { useForm } from 'react-hook-form';
-import { dateRangeSelector, salesSelector } from '../selectors';
+import { salesSelector } from '../selectors';
+import { allRevenueTypesSelector } from '../../revenueTypeSlice';
 import WholeFarmRevenue from '../../../components/Finances/WholeFarmRevenue';
 import { AddLink, Semibold } from '../../../components/Typography';
-import DateRangePicker from '../../../components/Form/DateRangePicker';
-import ActualCropRevenue from '../ActualCropRevenue';
+import ActualRevenueItem from '../ActualRevenueItem';
 import FinanceListHeader from '../../../components/Finances/FinanceListHeader';
-import { calcActualRevenue, filterSalesByDateRange } from '../util';
-import { setDateRange } from '../actions';
+import { calcActualRevenue, filterSalesByDateRange, mapSalesToRevenueItems } from '../util';
+import { setPersistedPaths } from '../../hooks/useHookFormPersist/hookFormPersistSlice';
+import { getRevenueTypes } from '../saga';
+import { cropVarietiesSelector } from '../../cropVarietySlice';
+import DateRangeSelector from '../../../components/Finances/DateRangeSelector';
+import useDateRangeSelector from '../../../components/DateRangeSelector/useDateRangeSelector';
+import { SUNDAY } from '../../../util/dateRange';
 
 export default function ActualRevenue({ history, match }) {
   const { t } = useTranslation();
+  const dispatch = useDispatch();
   const onGoBack = () => history.back();
-  const onAddRevenue = () => history.push(`/add_sale`);
+  const onAddRevenue = () => {
+    dispatch(setPersistedPaths(['/revenue_types', '/add_sale']));
+    history.push('/revenue_types');
+  };
   // TODO: refactor sale data after finance reducer is remade
   const sales = useSelector(salesSelector);
-  const dateRange = useSelector(dateRangeSelector);
-  const dispatch = useDispatch();
-
-  const year = new Date().getFullYear();
-
-  const {
-    register,
-    getValues,
-    watch,
-    control,
-    formState: { errors, isValid },
-  } = useForm({
-    mode: 'onBlur',
-    shouldUnregister: true,
-    defaultValues: {
-      from_date: dateRange?.startDate
-        ? new Date(
-            typeof dateRange.startDate === 'string'
-              ? dateRange.startDate.split('T')[0] + 'T00:00:00.000Z'
-              : dateRange.startDate,
-          )
-            .toISOString()
-            .split('T')[0]
-        : `${year}-01-01`,
-      to_date: dateRange?.endDate
-        ? new Date(
-            typeof dateRange.endDate === 'string'
-              ? dateRange.endDate.split('T')[0] + 'T00:00:00.000Z'
-              : dateRange.endDate,
-          )
-            .toISOString()
-            .split('T')[0]
-        : `${year}-12-31`,
-    },
-  });
-
-  const fromDate = watch('from_date');
-  const toDate = watch('to_date');
+  const allRevenueTypes = useSelector(allRevenueTypesSelector);
+  const cropVarieties = useSelector(cropVarietiesSelector);
+  const { startDate: fromDate, endDate: toDate } = useDateRangeSelector({ weekStartDate: SUNDAY });
 
   const revenueForWholeFarm = useMemo(
-    () => calcActualRevenue(sales, fromDate, toDate),
-    [sales, fromDate, toDate],
+    () => calcActualRevenue(sales, fromDate, toDate, allRevenueTypes),
+    [sales, fromDate, toDate, allRevenueTypes],
   );
   const filteredSales = useMemo(
     () => filterSalesByDateRange(sales, fromDate, toDate),
     [sales, fromDate, toDate],
   );
+  const revenueItems = useMemo(
+    () => mapSalesToRevenueItems(filteredSales, allRevenueTypes, cropVarieties),
+    [filteredSales, allRevenueTypes, cropVarieties],
+  );
 
   useEffect(() => {
-    dispatch(setDateRange({ startDate: fromDate, endDate: toDate }));
-  }, [fromDate, toDate]);
+    if (!allRevenueTypes?.length) {
+      dispatch(getRevenueTypes());
+    }
+  }, []);
 
   return (
     <Layout>
@@ -87,22 +66,17 @@ export default function ActualRevenue({ history, match }) {
       <Semibold style={{ marginBottom: '24px' }} sm>
         {t('FINANCES.VIEW_WITHIN_DATE_RANGE')}
       </Semibold>
-      <DateRangePicker
-        register={register}
-        control={control}
-        getValues={getValues}
-        style={{ marginBottom: '24px' }}
-      />
+      <DateRangeSelector />
 
       <FinanceListHeader
         firstColumn={t('FINANCES.DATE')}
         secondColumn={t('FINANCES.REVENUE')}
         style={{ marginBottom: '8px' }}
       />
-      {filteredSales.map((sale) => (
-        <ActualCropRevenue
-          key={sale.sale_id}
-          sale={sale}
+      {revenueItems.map((item) => (
+        <ActualRevenueItem
+          key={item.sale.sale_id}
+          revenueItem={item}
           history={history}
           style={{ marginBottom: '16px' }}
         />
