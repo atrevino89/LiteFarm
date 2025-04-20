@@ -34,3 +34,15 @@ export const setFalsyValuesToNull = (array, obj) => {
     obj[val] ??= null;
   }
 };
+
+// Refuse GET or DELETE requests with a request body
+export const rejectBodyInGetAndDelete = (req, res, next) => {
+  if (
+    (req.method === 'DELETE' || req.method === 'GET') &&
+    req.body &&
+    Object.keys(req.body).length > 0
+  ) {
+    return res.sendStatus(400);
+  }
+  next();
+};

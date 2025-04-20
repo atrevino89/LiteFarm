@@ -14,8 +14,17 @@
  */
 
 import './dotenvConfig.js';
-import express, { ErrorRequestHandler, RequestHandler } from 'express';
+import express, { ErrorRequestHandler, RequestHandler, Router as ExpressRouter } from 'express';
+import { rejectBodyInGetAndDelete } from './util/middleware.js'
+import promiseRouter from 'express-promise-router';
+import { loadRouteFromFile, getRouteFiles } from './routes/index.js';
+import loginRoutes from './routes/loginRoute.js';
+import passwordResetRoutes from './routes/passwordResetRoute.js';
+
+import checkJwt from './middleware/acl/checkJwt.js';
+
 const app = express();
+
 import * as Sentry from '@sentry/node';
 import expressOasGenerator from 'express-oas-generator';
 const environment = process.env.NODE_ENV || 'development';
@@ -100,9 +109,7 @@ expressOasGenerator.handleResponses(app, {
   ],
 });
 
-import promiseRouter from 'express-promise-router';
 import { Model } from 'objection';
-import checkJwt from './middleware/acl/checkJwt.js';
 import cors from 'cors';
 
 // initialize knex
@@ -113,67 +120,6 @@ Model.knex(knex);
 
 // import logger
 import logger from './common/logger.js';
-
-// import routes
-import loginRoutes from './routes/loginRoute.js';
-
-import defaultAnimalTypeRoute from './routes/defaultAnimalTypeRoute.js';
-import customAnimalTypeRoute from './routes/customAnimalTypeRoute.js';
-import defaultAnimalBreedRoute from './routes/defaultAnimalBreedRoute.js';
-import customAnimalBreedRoute from './routes/customAnimalBreedRoute.js';
-import animalRoute from './routes/animalRoute.js';
-import animalBatchRoute from './routes/animalBatchRoute.js';
-import animalIdentifierColorRoute from './routes/animalIdentifierColorRoute.js';
-import animalIdentifierTypeRoute from './routes/animalIdentifierTypeRoute.js';
-import animalSexRoute from './routes/animalSexRoute.js';
-import animalOriginRoute from './routes/animalOriginRoute.js';
-import animalRemovalReasonRoute from './routes/animalRemovalReasonRoute.js';
-import animalUseRoute from './routes/animalUseRoute.js';
-import cropRoutes from './routes/cropRoute.js';
-import cropVarietyRoutes from './routes/cropVarietyRoute.js';
-import fieldRoutes from './routes/fieldRoute.js';
-import saleRoutes from './routes/saleRoute.js';
-import taskTypeRoutes from './routes/taskTypeRoute.js';
-import soilAmendmentMethodRoute from './routes/soilAmendmentMethodRoute.js';
-import soilAmendmentPurposeRoute from './routes/soilAmendmentPurposeRoute.js';
-import soilAmendmentFertiliserTypeRoute from './routes/soilAmendmentFertiliserTypeRoute.js';
-import animalMovementPurposeRoute from './routes/animalMovementPurposeRoute.js';
-import userRoutes from './routes/userRoute.js';
-import farmExpenseRoute from './routes/farmExpenseRoute.js';
-import farmExpenseTypeRoute from './routes/farmExpenseTypeRoute.js';
-import revenueTypeRoute from './routes/revenueTypeRoute.js';
-import farmRoutes from './routes/farmRoute.js';
-import logRoutes from './routes/logRoute.js';
-import managementPlanRoute from './routes/managementPlanRoute.js';
-import fertilizerRoutes from './routes/fertilizerRoute.js';
-import diseaseRoutes from './routes/diseaseRoute.js';
-import pesticideRoutes from './routes/pesticideRoute.js';
-import yieldRoutes from './routes/yieldRoute.js';
-import priceRoutes from './routes/priceRoute.js';
-import insightRoutes from './routes/insightRoute.js';
-import locationRoute from './routes/locationRoute.js';
-import userFarmDataRoute from './routes/userFarmDataRoute.js';
-import userFarmRoute from './routes/userFarmRoute.js';
-import rolesRoutes from './routes/rolesRoute.js';
-import organicCertifierSurveyRoutes from './routes/organicCertifierSurveyRoute.js';
-import passwordResetRoutes from './routes/passwordResetRoute.js';
-import showedSpotlightRoutes from './routes/showedSpotlightRoute.js';
-import releaseBadgeRoutes from './routes/releaseBadgeRoute.js';
-import nominationRoutes from './routes/nominationRoute.js';
-import userLogRoute from './routes/userLogRoute.js';
-
-import supportTicketRoute from './routes/supportTicketRoute.js';
-import exportRoute from './routes/exportRoute.js';
-import farmTokenRoute from './routes/farmTokenRoute.js';
-import documentRoute from './routes/documentRoute.js';
-import taskRoute from './routes/taskRoute.js';
-import productRoute from './routes/productRoute.js';
-import notificationUserRoute from './routes/notificationUserRoute.js';
-import timeNotificationRoute from './routes/timeNotificationRoute.js';
-import sensorRoute from './routes/sensorRoute.js';
-import farmAddonRoute from './routes/farmAddonRoute.js';
-import irrigationPrescriptionRoute from './routes/irrigationPrescriptionRoute.js';
-import irrigationPrescriptionRequestRoute from './routes/irrigationPrescriptionRequestRoute.js';
 
 // register API
 const router = promiseRouter();
@@ -234,17 +180,6 @@ const applyExpressJSON: RequestHandler = (req, res, next) => {
   jsonMiddleware(req, res, next);
 };
 
-// Refuse GET or DELETE requests with a request body
-const rejectBodyInGetAndDelete: RequestHandler = (req, res, next) => {
-  if (
-    (req.method === 'DELETE' || req.method === 'GET') &&
-    req.body &&
-    Object.keys(req.body).length > 0
-  ) {
-    return res.sendStatus(400);
-  }
-  next();
-};
 
 const getAllowedOrigin = () => {
   switch (environment) {
@@ -284,68 +219,41 @@ app
   .set('json spaces', 2)
   .use('/login', loginRoutes)
   .use('/password_reset', passwordResetRoutes)
-  // ACL middleware
+  // from now on Auth is required
   .use(checkJwt)
 
-  // routes
-  .use('/default_animal_types', defaultAnimalTypeRoute)
-  .use('/custom_animal_types', customAnimalTypeRoute)
-  .use('/default_animal_breeds', defaultAnimalBreedRoute)
-  .use('/custom_animal_breeds', customAnimalBreedRoute)
-  .use('/animals', animalRoute)
-  .use('/animal_batches', animalBatchRoute)
-  .use('/animal_identifier_types', animalIdentifierTypeRoute)
-  .use('/animal_identifier_colors', animalIdentifierColorRoute)
-  .use('/animal_sexes', animalSexRoute)
-  .use('/animal_origins', animalOriginRoute)
-  .use('/animal_removal_reasons', animalRemovalReasonRoute)
-  .use('/animal_uses', animalUseRoute)
-  .use('/location', locationRoute)
-  .use('/userLog', userLogRoute)
-  .use('/crop', cropRoutes)
-  .use('/crop_variety', cropVarietyRoutes)
-  .use('/field', fieldRoutes)
-  .use('/sale', saleRoutes)
-  .use('/revenue_type', revenueTypeRoute)
-  .use('/task_type', taskTypeRoutes)
-  .use('/soil_amendment_purposes', soilAmendmentPurposeRoute)
-  .use('/soil_amendment_methods', soilAmendmentMethodRoute)
-  .use('/soil_amendment_fertiliser_types', soilAmendmentFertiliserTypeRoute)
-  .use('/animal_movement_purposes', animalMovementPurposeRoute)
-  .use('/user', userRoutes)
-  .use('/expense', farmExpenseRoute)
-  .use('/expense_type', farmExpenseTypeRoute)
-  .use('/farm', farmRoutes)
-  .use('/log', logRoutes)
-  .use('/management_plan', managementPlanRoute)
-  .use('/fertilizer', fertilizerRoutes)
-  .use('/disease', diseaseRoutes)
-  .use('/pesticide', pesticideRoutes)
-  .use('/yield', yieldRoutes)
-  .use('/price', priceRoutes)
-  .use('/insight', insightRoutes)
-  .use('/farmdata', userFarmDataRoute)
-  .use('/user_farm', userFarmRoute)
-  .use('/roles', rolesRoutes)
-  .use('/organic_certifier_survey', organicCertifierSurveyRoutes)
-  .use('/support_ticket', supportTicketRoute)
-  .use('/export', exportRoute)
-  .use('/showed_spotlight', showedSpotlightRoutes)
-  .use('/release_badge', releaseBadgeRoutes)
-  .use('/farm_token', farmTokenRoute)
-  .use('/document', documentRoute)
-  .use('/task', taskRoute)
-  .use('/product', productRoute)
-  .use('/nomination', nominationRoutes)
-  .use('/notification_user', notificationUserRoute)
-  .use('/time_notification', timeNotificationRoute)
-  .use('/farm_addon', farmAddonRoute)
-  .use('/irrigation_prescriptions', irrigationPrescriptionRoute)
-  .use('/irrigation_prescription_request', irrigationPrescriptionRequestRoute);
+  // considered as hooks to implement a
+  // different behavior for routes
+  // like the `/sensor` endpoint
+  const hookRoutes = ['sensorRoute.ts'];
 
-// Allow a 1MB limit on sensors to match incoming Ensemble data
-app.use('/sensor', express.json({ limit: '1MB' }), rejectBodyInGetAndDelete, sensorRoute);
+  for(const routeFile of getRouteFiles()) {
+    const expressRouter = ExpressRouter()
+    console.log(`Loading route file: ${routeFile}`)
 
+    const routerLoaded = await loadRouteFromFile(routeFile, expressRouter)
+    if(routerLoaded == null) {
+      throw new Error("There was an error loading routes.")
+    }
+    console.log(routerLoaded.path)
+
+    if (hookRoutes.includes(routeFile)) {
+      // different scenarios for particular
+      // endpoints from the api
+      if (routeFile.includes('sensorRoute.ts')) {
+        // allow a 1MB limit on sensors to match incoming Ensemble data
+        app.use(
+          routerLoaded.path,
+          express.json({ limit: '1MB' }),
+          rejectBodyInGetAndDelete,
+          routerLoaded.loader(),
+        );
+      }
+      continue;
+    }
+    app.use(routerLoaded.path, routerLoaded.loader());
+  }
+  
 if (process.env.SENTRY_DSN && environment !== 'development') {
   // The error handler must be before any other error middleware and after all controllers
   app.use(Sentry.Handlers.errorHandler());
@@ -377,7 +285,6 @@ if (
   environment === 'integration'
 ) {
   app.listen(port, () => {
-    // eslint-disable-next-line no-console
     logger.info('LiteFarm Backend listening on port ' + port);
   });
 }

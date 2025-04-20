@@ -14,27 +14,30 @@
  */
 
 import checkScope from '../middleware/acl/checkScope.js';
-import IrrigationPrescriptionRequestController from '../controllers/irrigationPrescriptionRequestController.js';
-import checkSchedulerJwt from '../middleware/acl/checkSchedulerJwt.js';
-import checkSchedulerPermission from '../middleware/acl/checkSchedulerPermission.js';
+import { checkFarmAddon } from '../middleware/validation/checkFarmAddon.js';
+import FarmAddonController from '../controllers/farmAddonController.js';
+import hasFarmAccess from '../middleware/acl/hasFarmAccess.js';
 
-import { Router as ExpressRouter } from 'express';
+import { Router as ExpressRouter} from 'express';
 import { Route } from './routes.interfaces.js';
 
 export default (router: ExpressRouter): Route => ({
-  path: '', // TODO: this route didn't state any path, might be a placedholder route
+  path: '/farm_addon',
   loader: (): ExpressRouter => {
     router.post(
       '/',
-      checkScope(['get:smart_irrigation']),
-      IrrigationPrescriptionRequestController.initiateFarmIrrigationPrescription(),
+      checkScope(['add:farm_addon']),
+      checkFarmAddon(),
+      FarmAddonController.addFarmAddon(),
     );
 
-    router.post(
-      '/scheduler',
-      checkSchedulerJwt,
-      checkSchedulerPermission('requestScheduledEndpoint'),
-      IrrigationPrescriptionRequestController.initiateFarmIrrigationPrescription(true),
+    router.get('/', checkScope(['get:farm_addon']), FarmAddonController.getFarmAddon());
+
+    router.delete(
+      '/:id',
+      hasFarmAccess({ tableName: 'farm_addon' }),
+      checkScope(['delete:farm_addon']),
+      FarmAddonController.deleteFarmAddon(),
     );
 
     return router;

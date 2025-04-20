@@ -1,5 +1,5 @@
 /*
- *  Copyright 2025 LiteFarm.org
+ *  Copyright 2024 LiteFarm.org
  *  This file is part of LiteFarm.
  *
  *  LiteFarm is free software: you can redistribute it and/or modify
@@ -12,31 +12,25 @@
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  *  GNU General Public License for more details, see <https://www.gnu.org/licenses/>.
  */
-
+import CustomAnimalTypeController from '../controllers/customAnimalTypeController.js';
 import checkScope from '../middleware/acl/checkScope.js';
-import IrrigationPrescriptionRequestController from '../controllers/irrigationPrescriptionRequestController.js';
-import checkSchedulerJwt from '../middleware/acl/checkSchedulerJwt.js';
-import checkSchedulerPermission from '../middleware/acl/checkSchedulerPermission.js';
-
-import { Router as ExpressRouter } from 'express';
+import { Router as ExpressRouter} from 'express';
 import { Route } from './routes.interfaces.js';
 
 export default (router: ExpressRouter): Route => ({
-  path: '', // TODO: this route didn't state any path, might be a placedholder route
+  path: '/custom_animal_types',
   loader: (): ExpressRouter => {
+    router.get(
+      '/',
+      checkScope(['get:animal_types']),
+      CustomAnimalTypeController.getCustomAnimalTypes(),
+    );
+
     router.post(
       '/',
-      checkScope(['get:smart_irrigation']),
-      IrrigationPrescriptionRequestController.initiateFarmIrrigationPrescription(),
+      checkScope(['add:animal_types']),
+      CustomAnimalTypeController.addCustomAnimalType(),
     );
-
-    router.post(
-      '/scheduler',
-      checkSchedulerJwt,
-      checkSchedulerPermission('requestScheduledEndpoint'),
-      IrrigationPrescriptionRequestController.initiateFarmIrrigationPrescription(true),
-    );
-
     return router;
   }
 });

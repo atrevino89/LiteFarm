@@ -1,5 +1,5 @@
 /*
- *  Copyright 2025 LiteFarm.org
+ *  Copyright 2019, 2020, 2021, 2022 LiteFarm.org
  *  This file is part of LiteFarm.
  *
  *  LiteFarm is free software: you can redistribute it and/or modify
@@ -13,30 +13,37 @@
  *  GNU General Public License for more details, see <https://www.gnu.org/licenses/>.
  */
 
-import checkScope from '../middleware/acl/checkScope.js';
-import IrrigationPrescriptionRequestController from '../controllers/irrigationPrescriptionRequestController.js';
+import timeNotificationController from '../controllers/timeNotificationController.js';
+
 import checkSchedulerJwt from '../middleware/acl/checkSchedulerJwt.js';
 import checkSchedulerPermission from '../middleware/acl/checkSchedulerPermission.js';
+import hasTimeNotificationsAccess from '../middleware/acl/hasTimeNotificationsAccess.js';
 
 import { Router as ExpressRouter } from 'express';
 import { Route } from './routes.interfaces.js';
 
 export default (router: ExpressRouter): Route => ({
-  path: '', // TODO: this route didn't state any path, might be a placedholder route
+  path: '/time_notification',
   loader: (): ExpressRouter => {
     router.post(
-      '/',
-      checkScope(['get:smart_irrigation']),
-      IrrigationPrescriptionRequestController.initiateFarmIrrigationPrescription(),
+      '/weekly_unassigned_tasks/:farm_id',
+      checkSchedulerJwt,
+      checkSchedulerPermission('requestTimedNotifications'),
+      timeNotificationController.postWeeklyUnassignedTasks,
     );
 
     router.post(
-      '/scheduler',
+      '/daily_due_today_tasks/:farm_id',
       checkSchedulerJwt,
-      checkSchedulerPermission('requestScheduledEndpoint'),
-      IrrigationPrescriptionRequestController.initiateFarmIrrigationPrescription(true),
+      checkSchedulerPermission('requestTimedNotifications'),
+      timeNotificationController.postDailyDueTodayTasks,
     );
 
-    return router;
+    router.post(
+      '/new_irrigation_prescription/:farm_id',
+      checkSchedulerJwt,
+      checkSchedulerPermission('requestTimedNotifications'),
+      timeNotificationController.postDailyNewIrrigationPrescriptions,
+    );
   }
 });
