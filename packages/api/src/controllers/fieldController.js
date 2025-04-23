@@ -127,7 +127,7 @@ const fieldController = {
     return await baseController.postWithResponse(fieldModel, req.body, req, { trx });
   },
 
-  // eslint-disable-next-line no-unused-vars
+
   mapFieldToStation(req, res) {
     mapFieldsToStationId([req.field]);
   },

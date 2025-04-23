@@ -16,7 +16,7 @@
 import supportTicketController from '../controllers/supportTicketController.js';
 import multerDiskUpload from '../util/fileUpload.js';
 
-import { Router as ExpressRouter} from 'express';
+import { Router as ExpressRouter } from 'express';
 import { Route } from './routes.interfaces.js';
 
 export default (router: ExpressRouter): Route => ({
@@ -25,5 +25,5 @@ export default (router: ExpressRouter): Route => ({
     router.post('/', multerDiskUpload, supportTicketController.addSupportTicket);
 
     return router;
-  }
+  },
 });

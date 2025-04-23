@@ -20,7 +20,7 @@ import organicCertifierCheck from '../middleware/validation/organicCertifierChec
 import activeManagementPlanCheck from '../middleware/validation/activeManagementPlanCheck.js';
 import multerDiskUpload from '../util/fileUpload.js';
 import validateFileExtension from '../middleware/validation/uploadImage.js';
-import { Router as ExpressRouter} from 'express';
+import { Router as ExpressRouter } from 'express';
 import { Route } from './routes.interfaces.js';
 
 export default (router: ExpressRouter): Route => ({
@@ -74,5 +74,5 @@ export default (router: ExpressRouter): Route => ({
     );
 
     return router;
-  }
+  },
 });

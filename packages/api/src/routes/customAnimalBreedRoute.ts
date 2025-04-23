@@ -14,7 +14,7 @@
  */
 import CustomAnimalBreedController from '../controllers/customAnimalBreedController.js';
 import checkScope from '../middleware/acl/checkScope.js';
-import { Router as ExpressRouter} from 'express';
+import { Router as ExpressRouter } from 'express';
 import { Route } from './routes.interfaces.js';
 
 export default (router: ExpressRouter): Route => ({
@@ -32,5 +32,5 @@ export default (router: ExpressRouter): Route => ({
      CustomAnimalBreedController.addCustomAnimalBreed(),
    );
    return router;
-  }
+  },
 });

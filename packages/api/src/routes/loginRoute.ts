@@ -1,7 +1,7 @@
 import loginController from '../controllers/loginController.js';
 import checkGoogleJwt from '../middleware/acl/checkGoogleJwt.js';
 
-import { Router as ExpressRouter} from 'express';
+import { Router as ExpressRouter } from 'express';
 import { Route } from './routes.interfaces.js';
 
 export default (router: ExpressRouter): Route => ({
@@ -12,5 +12,5 @@ export default (router: ExpressRouter): Route => ({
     router.get('/user/:email', loginController.getUserNameByUserEmail());
 
     return router;
-  }
+  },
 });

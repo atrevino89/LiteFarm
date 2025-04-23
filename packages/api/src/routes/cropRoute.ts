@@ -20,7 +20,7 @@ import checkScope from '../middleware/acl/checkScope.js';
 import multerDiskUpload from '../util/fileUpload.js';
 import validateFileExtension from '../middleware/validation/uploadImage.js';
 
-import { Router as ExpressRouter} from 'express';
+import { Router as ExpressRouter } from 'express';
 import { Route } from './routes.interfaces.js';
 
 export default (router: ExpressRouter): Route => ({
@@ -75,5 +75,5 @@ export default (router: ExpressRouter): Route => ({
     );
 
     return router;
-  }
+  },
 });

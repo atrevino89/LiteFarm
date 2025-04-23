@@ -14,7 +14,7 @@
  */
 import DefaultAnimalTypeController from '../controllers/defaultAnimalTypeController.js';
 
-import { Router as ExpressRouter} from 'express';
+import { Router as ExpressRouter } from 'express';
 import { Route } from './routes.interfaces.js';
 
 export default (router: ExpressRouter): Route => ({
@@ -22,5 +22,5 @@ export default (router: ExpressRouter): Route => ({
   loader: (): ExpressRouter => {
    router.get('/', DefaultAnimalTypeController.getDefaultAnimalTypes());
    return router;
-  }
+  },
 });

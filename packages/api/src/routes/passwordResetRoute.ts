@@ -17,7 +17,7 @@ import passwordResetController from '../controllers/passwordResetController.js';
 import checkResetPasswordJwt from '../middleware/acl/checkResetPasswordJwt.js';
 import checkResetPasswordTokenContent from '../middleware/acl/checkResetPasswordTokenContent.js';
 
-import { Router as ExpressRouter} from 'express';
+import { Router as ExpressRouter } from 'express';
 import { Route } from './routes.interfaces.js';
 
 export default (router: ExpressRouter): Route => ({
@@ -40,5 +40,5 @@ export default (router: ExpressRouter): Route => ({
     );
 
     return router;
-  }
+  },
 });

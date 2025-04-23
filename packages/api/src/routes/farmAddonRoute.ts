@@ -18,7 +18,7 @@ import { checkFarmAddon } from '../middleware/validation/checkFarmAddon.js';
 import FarmAddonController from '../controllers/farmAddonController.js';
 import hasFarmAccess from '../middleware/acl/hasFarmAccess.js';
 
-import { Router as ExpressRouter} from 'express';
+import { Router as ExpressRouter } from 'express';
 import { Route } from './routes.interfaces.js';
 
 export default (router: ExpressRouter): Route => ({
@@ -41,5 +41,5 @@ export default (router: ExpressRouter): Route => ({
     );
 
     return router;
-  }
+  },
 });

@@ -65,5 +65,5 @@ export default (router: ExpressRouter): Route => ({
     router.put('/:user_id', isSelf, userController.updateUser);
 
     return router;
-  }
+  },
 })

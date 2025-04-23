@@ -57,4 +57,47 @@ const sensorController = {
   },
 };
 
+const SensorNotificationTypes = {
+  SENSOR_BULK_UPLOAD_SUCCESS: 'SENSOR_BULK_UPLOAD_SUCCESS',
+  SENSOR_BULK_UPLOAD_FAIL: 'SENSOR_BULK_UPLOAD_FAIL',
+};
+
+/**
+ * Creates a notification for sensor
+ * @param {string} receiverId target notification user id
+ * @param {string} farmId farm id
+ * @param {string} notifyTranslationKey notification translation key
+ * @param {Object} ref can be one of three types: { url: string }, { entity: { id: string,
+ * type: string } }, or { error_download: { errors: array[string], file_name: string } }
+ * @async
+ */
+
+async function sendSensorNotification(
+  receiverId,
+  farmId,
+  notifyTranslationKey,
+  ref = { url: '/map' },
+) {
+  if (!receiverId) return;
+
+  await NotificationUser.notify(
+    {
+      title: {
+        translation_key: `NOTIFICATION.${SensorNotificationTypes[notifyTranslationKey]}.TITLE`,
+      },
+      body: {
+        translation_key: `NOTIFICATION.${SensorNotificationTypes[notifyTranslationKey]}.BODY`,
+      },
+      variables: [],
+      ref,
+      context: {
+        icon_translation_key: 'SENSOR',
+        notification_type: SensorNotificationTypes[notifyTranslationKey],
+      },
+      farm_id: farmId,
+    },
+    [receiverId],
+  );
+}
+
 export default sensorController;

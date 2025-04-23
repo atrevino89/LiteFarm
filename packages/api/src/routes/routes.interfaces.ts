@@ -1,4 +1,4 @@
-import { Router as ExpressRouter} from 'express';
+import { Router as ExpressRouter } from 'express';
 
 export interface Route {
   path: string;

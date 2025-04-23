@@ -19,7 +19,7 @@ import hasFarmAccess from '../middleware/acl/hasFarmAccess.js';
 import conditionallyApplyMiddleware from '../middleware/acl/conditionally.apply.js';
 import isCreator from '../middleware/acl/isCreator.js';
 
-import { Router as ExpressRouter} from 'express';
+import { Router as ExpressRouter } from 'express';
 import { Route } from './routes.interfaces.js';
 
 export default (router: ExpressRouter): Route => ({
@@ -65,5 +65,5 @@ export default (router: ExpressRouter): Route => ({
 
 
     return router;
-  }
+  },
 });

@@ -24,7 +24,7 @@ import SensorController from '../controllers/sensorController.js';
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
-import { Router as ExpressRouter} from 'express';
+import { Router as ExpressRouter } from 'express';
 import { Route } from './routes.interfaces.js';
 
 export default (router: ExpressRouter): Route => ({

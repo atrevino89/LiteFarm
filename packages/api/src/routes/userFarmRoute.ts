@@ -21,7 +21,7 @@ import checkInviteJwt from '../middleware/acl/checkInviteJwt.js';
 import checkInvitationTokenContent from '../middleware/acl/checkInviteTokenContent.js';
 import checkUserFarmStatus from '../middleware/acl/checkUserFarmStatus.js';
 
-import { Router as ExpressRouter} from 'express';
+import { Router as ExpressRouter } from 'express';
 import { Route } from './routes.interfaces.js';
 
 export default (router: ExpressRouter): Route => ({
@@ -124,5 +124,5 @@ export default (router: ExpressRouter): Route => ({
     router.patch('/onboarding/farm/:farm_id/user/:user_id', userFarmController.updateOnboardingFlags());
 
     return router;
-  }
+  },
 });

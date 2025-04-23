@@ -16,7 +16,7 @@
 import NotificationUserController from '../controllers/notificationUserController.js';
 
 import checkUserFarmStatus from '../middleware/acl/checkUserFarmStatus.js';
-import { Router as ExpressRouter} from 'express';
+import { Router as ExpressRouter } from 'express';
 import { Route } from './routes.interfaces.js';
 
 export default (router: ExpressRouter): Route => ({
@@ -28,5 +28,5 @@ export default (router: ExpressRouter): Route => ({
     router.patch('/clear_alerts', checkUserFarmStatus(), NotificationUserController.clearAlerts);
 
     return router;
-  }
+  },
 });

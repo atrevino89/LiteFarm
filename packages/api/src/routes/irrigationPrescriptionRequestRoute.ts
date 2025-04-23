@@ -38,5 +38,5 @@ export default (router: ExpressRouter): Route => ({
     );
 
     return router;
-  }
+  },
 });

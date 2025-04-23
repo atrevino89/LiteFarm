@@ -45,5 +45,6 @@ export default (router: ExpressRouter): Route => ({
       checkSchedulerPermission('requestTimedNotifications'),
       timeNotificationController.postDailyNewIrrigationPrescriptions,
     );
-  }
+    return router;
+  },
 });

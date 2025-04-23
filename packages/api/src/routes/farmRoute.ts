@@ -21,7 +21,7 @@ import hasTimeNotificationsAccess from '../middleware/acl/hasTimeNotificationsAc
 import multerDiskUpload from '../util/fileUpload.js';
 import { parseMultipartJson, handleImageOperations } from '../middleware/farm.js';
 import validateFileExtension from '../middleware/validation/uploadImage.js';
-import { Router as ExpressRouter} from 'express';
+import { Router as ExpressRouter } from 'express';
 import { Route } from './routes.interfaces.js';
 
 export default (router: ExpressRouter): Route => ({

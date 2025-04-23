@@ -16,7 +16,7 @@
 import checkScope from '../middleware/acl/checkScope.js';
 import animalUseController from '../controllers/animalUseController.js';
 
-import { Router as ExpressRouter} from 'express';
+import { Router as ExpressRouter } from 'express';
 import { Route } from './routes.interfaces.js';
 
 export default (router: ExpressRouter): Route => ({
@@ -25,5 +25,5 @@ export default (router: ExpressRouter): Route => ({
     router.get('/', checkScope(['get:animal_uses']), animalUseController.getAnimalUses());
 
     return router;
-  }
+  },
 });

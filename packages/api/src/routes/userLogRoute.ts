@@ -14,7 +14,7 @@
  */
 import userLogController from '../controllers/userLogController.js';
 
-import { Router as ExpressRouter} from 'express';
+import { Router as ExpressRouter } from 'express';
 import { Route } from './routes.interfaces.js';
 
 export default (router: ExpressRouter): Route => ({
@@ -23,5 +23,5 @@ export default (router: ExpressRouter): Route => ({
     router.post('/', userLogController.addUserLog());
 
     return router;
-  }
+  },
 });

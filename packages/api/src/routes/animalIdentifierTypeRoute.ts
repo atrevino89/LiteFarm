@@ -15,7 +15,7 @@
 
 import checkScope from '../middleware/acl/checkScope.js';
 import { getIdentifierTypes } from '../controllers/animalIdentifierTypeController.js';
-import { Router as ExpressRouter} from 'express';
+import { Router as ExpressRouter } from 'express';
 import { Route } from './routes.interfaces.js';
 
 export default (router: ExpressRouter): Route => ({
@@ -23,5 +23,5 @@ export default (router: ExpressRouter): Route => ({
   loader: (): ExpressRouter => {
    router.get('/', checkScope(['get:animal_identifier_types']), getIdentifierTypes);
    return router;
-  }
+  },
 });

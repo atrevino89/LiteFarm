@@ -13,7 +13,7 @@
  *  GNU General Public License for more details, see <https://www.gnu.org/licenses/>.
  */
 import DefaultAnimalBreedController from '../controllers/defaultAnimalBreedController.js';
-import { Router as ExpressRouter} from 'express';
+import { Router as ExpressRouter } from 'express';
 import { Route } from './routes.interfaces.js';
 
 export default (router: ExpressRouter): Route => ({
@@ -22,5 +22,5 @@ export default (router: ExpressRouter): Route => ({
 
    router.get('/', DefaultAnimalBreedController.getDefaultAnimalBreeds());
    return router;
-  }
+  },
 });

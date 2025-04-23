@@ -16,7 +16,7 @@
 import releaseBadgeController from '../controllers/releaseBadgeController.js';
 import isSelf from '../middleware/acl/isSelf.js';
 
-import { Router as ExpressRouter} from 'express';
+import { Router as ExpressRouter } from 'express';
 import { Route } from './routes.interfaces.js';
 
 export default (router: ExpressRouter): Route => ({
@@ -27,5 +27,5 @@ export default (router: ExpressRouter): Route => ({
     router.patch('/', isSelf, releaseBadgeController.updateReleaseBadgeVersion());
 
     return router;
-  }
+  },
 });
