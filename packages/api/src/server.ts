@@ -17,7 +17,7 @@ import './dotenvConfig.js';
 import express, { ErrorRequestHandler, RequestHandler, Router as ExpressRouter } from 'express';
 import { rejectBodyInGetAndDelete } from './util/middleware.js'
 import promiseRouter from 'express-promise-router';
-import { loadRouteFromFile, getRouteFiles } from './routes/index.js';
+import { loadRouteFromFile, getRouteFiles, addRouteToApp } from './routes/index.js';
 import loginRoutes from './routes/loginRoute.js';
 import passwordResetRoutes from './routes/passwordResetRoute.js';
 
@@ -120,6 +120,7 @@ Model.knex(knex);
 
 // import logger
 import logger from './common/logger.js';
+import { Route } from './routes/routes.interfaces.js';
 
 // register API
 const router = promiseRouter();
@@ -252,8 +253,13 @@ app
       continue;
     }
     app.use(routerLoaded.path, routerLoaded.loader());
+
+  for(const routeFile of getRouteFiles()) {
+    const expressRouter = ExpressRouter()
+    const routerLoaded = await loadRouteFromFile(routeFile, expressRouter) as Route
+    addRouteToApp(app, routerLoaded, routeFile);
   }
-  
+
 if (process.env.SENTRY_DSN && environment !== 'development') {
   // The error handler must be before any other error middleware and after all controllers
   app.use(Sentry.Handlers.errorHandler());

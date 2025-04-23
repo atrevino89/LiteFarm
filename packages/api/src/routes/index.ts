@@ -2,8 +2,9 @@ import fs from 'fs';
 import path, { dirname } from 'path';
 import { fileURLToPath } from 'url';
 
-import {Router as ExpressRouter} from 'express';
+import { Express, json, Router as ExpressRouter } from 'express';
 import { Route } from './routes.interfaces.js';
+import { rejectBodyInGetAndDelete } from '../util/middleware.js'
 
 export const getRouteFiles = (): string[] => {
   // get the dir name from the actual index.ts file
@@ -23,8 +24,10 @@ export const loadRouteFromFile = async (file: string, expressRouter: ExpressRout
     const skipRoutes = [
       'loginRoute.ts',
       'passwordResetRoute.ts',
-      'animalGroupRoute.ts', // TODO: this one wasn't included in the original server.ts 
+      'animalGroupRoute.ts', // TODO: this one wasn't included in the original server.ts
     ];
+
+    console.log(`Loading route file: ${file}`)
 
     if (!skipRoutes.includes(file)) {
       try {
@@ -35,6 +38,32 @@ export const loadRouteFromFile = async (file: string, expressRouter: ExpressRout
       } catch (error) {
         console.log(`Error while loading the route from ${file}`);
         console.log(error);
+        throw new Error(error);
       }
     }
   }
+
+export const addRouteToApp = (app: Express, router: Route, routeFile: string) => {
+  // routes that require a treatment can be
+  // considered as hooks to implement a
+  // different behavior for routes
+  // like the `/sensor` endpoint
+  const hookRoutes = ['sensorRoute.ts'];
+
+  if (hookRoutes.includes(routeFile)) {
+    // different scenarios for particular
+    // endpoints from the api
+    if (routeFile.includes('sensorRoute.ts')) {
+      // allow a 1MB limit on sensors to match incoming Ensemble data
+      app.use(
+        router.path,
+        json({ limit: '1MB' }),
+        rejectBodyInGetAndDelete,
+        router.loader(),
+      );
+    }
+    return;
+  }
+  app.use(router.path, router.loader());
+
+}
