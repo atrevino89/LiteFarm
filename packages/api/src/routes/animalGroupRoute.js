@@ -1,5 +1,5 @@
 /*
- *  Copyright 2025 LiteFarm.org
+ *  Copyright 2024 LiteFarm.org
  *  This file is part of LiteFarm.
  *
  *  LiteFarm is free software: you can redistribute it and/or modify
@@ -13,27 +13,15 @@
  *  GNU General Public License for more details, see <https://www.gnu.org/licenses/>.
  */
 
+import AnimalGroupController from '../controllers/animalGroupController.js';
 import checkScope from '../middleware/acl/checkScope.js';
-import IrrigationPrescriptionRequestController from '../controllers/irrigationPrescriptionRequestController.js';
-import checkSchedulerJwt from '../middleware/acl/checkSchedulerJwt.js';
-import checkSchedulerPermission from '../middleware/acl/checkSchedulerPermission.js';
 
 
 export default (router) => ({
   path: '', // TODO: this route didn't state any path, might be a placedholder route
   loader: () => {
-    router.post(
-      '/',
-      checkScope(['get:smart_irrigation']),
-      IrrigationPrescriptionRequestController.initiateFarmIrrigationPrescription(),
-    );
-
-    router.post(
-      '/scheduler',
-      checkSchedulerJwt,
-      checkSchedulerPermission('requestScheduledEndpoint'),
-      IrrigationPrescriptionRequestController.initiateFarmIrrigationPrescription(true),
-    );
+   router.get('/', checkScope(['get:animal_groups']), AnimalGroupController.getFarmAnimalGroups());
+   router.post('/', checkScope(['add:animal_groups']), AnimalGroupController.addAnimalGroup());
 
     return router;
   },
