@@ -13,44 +13,47 @@
  *  GNU General Public License for more details, see <https://www.gnu.org/licenses/>.
  */
 
-import express from 'express';
-
-const router = express.Router();
 import insightController from '../controllers/insightController.js';
 import checkScope from '../middleware/acl/checkScope.js';
 import hasFarmAccess from '../middleware/acl/hasFarmAccess.js';
 
-// get one single number for generating meals page on the main insight page
 
-// soil om submodule
-// grabs soil data logs based on user_id
-// sorted by field_id so its easy to use in the soil_om submodule
-router.get(
-  '/soil_om/:farm_id',
-  hasFarmAccess({ params: 'farm_id' }),
-  checkScope(['get:insights']),
-  insightController.getSoilDataByFarmID(),
-);
+export default (router) => ({
+  path: '/insight',
+  loader: () => {
+    // get one single number for generating meals page on the main insight page
 
-router.get(
-  '/labour_happiness/:farm_id',
-  hasFarmAccess({ params: 'farm_id' }),
-  checkScope(['get:insights']),
-  insightController.getLabourHappinessByFarmID(),
-);
+    // soil om submodule
+    // grabs soil data logs based on user_id
+    // sorted by field_id so its easy to use in the soil_om submodule
+    router.get(
+      '/soil_om/:farm_id',
+      hasFarmAccess({ params: 'farm_id' }),
+      checkScope(['get:insights']),
+      insightController.getSoilDataByFarmID(),
+    );
 
-router.get(
-  '/biodiversity/:farm_id',
-  hasFarmAccess({ params: 'farm_id' }),
-  checkScope(['get:insights']),
-  insightController.getBiodiversityByFarmID(),
-);
+    router.get(
+      '/labour_happiness/:farm_id',
+      hasFarmAccess({ params: 'farm_id' }),
+      checkScope(['get:insights']),
+      insightController.getLabourHappinessByFarmID(),
+    );
 
-router.get(
-  '/prices/distance/:farm_id',
-  hasFarmAccess({ params: 'farm_id' }),
-  checkScope(['get:insights']),
-  insightController.getPricesNearbyByFarmID(),
-);
+    router.get(
+      '/biodiversity/:farm_id',
+      hasFarmAccess({ params: 'farm_id' }),
+      checkScope(['get:insights']),
+      insightController.getBiodiversityByFarmID(),
+    );
 
-export default router;
+    router.get(
+      '/prices/distance/:farm_id',
+      hasFarmAccess({ params: 'farm_id' }),
+      checkScope(['get:insights']),
+      insightController.getPricesNearbyByFarmID(),
+    );
+
+    return router;
+  },
+});

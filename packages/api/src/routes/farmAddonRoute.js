@@ -13,28 +13,31 @@
  *  GNU General Public License for more details, see <https://www.gnu.org/licenses/>.
  */
 
-import express from 'express';
 import checkScope from '../middleware/acl/checkScope.js';
 import { checkFarmAddon } from '../middleware/validation/checkFarmAddon.js';
 import FarmAddonController from '../controllers/farmAddonController.js';
 import hasFarmAccess from '../middleware/acl/hasFarmAccess.js';
 
-const router = express.Router();
 
-router.post(
-  '/',
-  checkScope(['add:farm_addon']),
-  checkFarmAddon(),
-  FarmAddonController.addFarmAddon(),
-);
+export default (router) => ({
+  path: '/farm_addon',
+  loader: () => {
+    router.post(
+      '/',
+      checkScope(['add:farm_addon']),
+      checkFarmAddon(),
+      FarmAddonController.addFarmAddon(),
+    );
 
-router.get('/', checkScope(['get:farm_addon']), FarmAddonController.getFarmAddon());
+    router.get('/', checkScope(['get:farm_addon']), FarmAddonController.getFarmAddon());
 
-router.delete(
-  '/:id',
-  hasFarmAccess({ tableName: 'farm_addon' }),
-  checkScope(['delete:farm_addon']),
-  FarmAddonController.deleteFarmAddon(),
-);
+    router.delete(
+      '/:id',
+      hasFarmAccess({ tableName: 'farm_addon' }),
+      checkScope(['delete:farm_addon']),
+      FarmAddonController.deleteFarmAddon(),
+    );
 
-export default router;
+    return router;
+  },
+});

@@ -13,34 +13,37 @@
  *  GNU General Public License for more details, see <https://www.gnu.org/licenses/>.
  */
 
-import express from 'express';
-
-const router = express.Router();
 import checkScope from '../middleware/acl/checkScope.js';
 import productController from './../controllers/productController.js';
 import hasFarmAccess from '../middleware/acl/hasFarmAccess.js';
 import { checkProductValidity } from '../middleware/validation/checkProductValidity.js';
 
-// Get the crop on a bed
-router.get(
-  '/farm/:farm_id',
-  hasFarmAccess({ params: 'farm_id' }),
-  productController.getProductsByFarm(),
-);
 
-router.post(
-  '/',
-  checkScope(['add:product']),
-  checkProductValidity(),
-  productController.addProduct(),
-);
+export default (router) => ({
+  path: '/product',
+  loader: () => {
+    // Get the crop on a bed
+    router.get(
+      '/farm/:farm_id',
+      hasFarmAccess({ params: 'farm_id' }),
+      productController.getProductsByFarm(),
+    );
 
-router.patch(
-  '/:product_id',
-  hasFarmAccess({ params: 'product_id' }),
-  checkScope(['edit:product']),
-  checkProductValidity(),
-  productController.updateProduct(),
-);
+    router.post(
+      '/',
+      checkScope(['add:product']),
+      checkProductValidity(),
+      productController.addProduct(),
+    );
 
-export default router;
+    router.patch(
+      '/:product_id',
+      hasFarmAccess({ params: 'product_id' }),
+      checkScope(['edit:product']),
+      checkProductValidity(),
+      productController.updateProduct(),
+    );
+
+    return router;
+  },
+});

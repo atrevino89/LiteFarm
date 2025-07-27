@@ -14,32 +14,36 @@
  */
 
 import nominationController from '../controllers/nominationController.js';
-import express from 'express';
-const router = express.Router();
 import hasFarmAccess from '../middleware/acl/hasFarmAccess.js';
 import checkScope from '../middleware/acl/checkScope.js';
 
-// This file represents the /nomination route
-router.post(
-  '/',
-  hasFarmAccess({ body: 'farm_id' }),
-  checkScope(['add:nomination']),
-  nominationController.addNomination('NOMINATED'),
-);
 
-router.put(
-  '/:nomination_id',
-  hasFarmAccess({ params: 'nomination_id' }),
-  hasFarmAccess({ body: 'farm_id' }),
-  checkScope(['edit:nomination']),
-  nominationController.updateNomination(),
-);
+export default (router) => ({
+  path: '/nomination',
+  loader: () => {
+    // This file represents the /nomination route
+    router.post(
+      '/',
+      hasFarmAccess({ body: 'farm_id' }),
+      checkScope(['add:nomination']),
+      nominationController.addNomination('NOMINATED'),
+    );
 
-router.delete(
-  '/:nomination_id',
-  hasFarmAccess({ params: 'nomination_id' }),
-  checkScope(['delete:nomination']),
-  nominationController.deleteNomination(),
-);
+    router.put(
+      '/:nomination_id',
+      hasFarmAccess({ params: 'nomination_id' }),
+      hasFarmAccess({ body: 'farm_id' }),
+      checkScope(['edit:nomination']),
+      nominationController.updateNomination(),
+    );
 
-export default router;
+    router.delete(
+      '/:nomination_id',
+      hasFarmAccess({ params: 'nomination_id' }),
+      checkScope(['delete:nomination']),
+      nominationController.deleteNomination(),
+    );
+
+    return router;
+  },
+});

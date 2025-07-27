@@ -13,9 +13,6 @@
  *  GNU General Public License for more details, see <https://www.gnu.org/licenses/>.
  */
 
-import express from 'express';
-
-const router = express.Router();
 import userController from '../controllers/userController.js';
 import checkScope from '../middleware/acl/checkScope.js';
 import isSelf from '../middleware/acl/isSelf.js';
@@ -26,40 +23,45 @@ import checkInvitationAndGoogleJwtContent from '../middleware/acl/checkInviteAnd
 import checkPasswordCreated from '../middleware/acl/checkPasswordCreated.js';
 import checkGoogleAccessToken from '../middleware/acl/checkGoogleAccessToken.js';
 
-router.post('/', userController.addUser);
+export default (router) => ({
+  path: '/user',
+  loader: () => {
+    router.post('/', userController.addUser);
 
-router.post(
-  '/invite',
-  hasFarmAccess({ body: 'farm_id' }),
-  checkScope(['add:users']),
-  userController.addInvitedUser,
-);
+    router.post(
+      '/invite',
+      hasFarmAccess({ body: 'farm_id' }),
+      checkScope(['add:users']),
+      userController.addInvitedUser,
+    );
 
-router.post(
-  '/pseudo',
-  hasFarmAccess({ body: 'farm_id' }),
-  checkScope(['add:users']),
-  userController.addPseudoUser,
-);
+    router.post(
+      '/pseudo',
+      hasFarmAccess({ body: 'farm_id' }),
+      checkScope(['add:users']),
+      userController.addPseudoUser,
+    );
 
-router.post(
-  '/accept_invitation',
-  checkInviteJwt,
-  checkInvitationTokenContent,
-  checkPasswordCreated,
-  userController.acceptInvitationAndPostPassword,
-);
+    router.post(
+      '/accept_invitation',
+      checkInviteJwt,
+      checkInvitationTokenContent,
+      checkPasswordCreated,
+      userController.acceptInvitationAndPostPassword,
+    );
 
-router.put(
-  '/accept_invitation',
-  checkGoogleAccessToken,
-  checkInvitationAndGoogleJwtContent,
-  checkPasswordCreated,
-  userController.acceptInvitationWithGoogleAccount,
-);
+    router.put(
+      '/accept_invitation',
+      checkGoogleAccessToken,
+      checkInvitationAndGoogleJwtContent,
+      checkPasswordCreated,
+      userController.acceptInvitationWithGoogleAccount,
+    );
 
-router.get('/:user_id', isSelf, userController.getUserByID);
+    router.get('/:user_id', isSelf, userController.getUserByID);
 
-router.put('/:user_id', isSelf, userController.updateUser);
+    router.put('/:user_id', isSelf, userController.updateUser);
 
-export default router;
+    return router;
+  },
+})

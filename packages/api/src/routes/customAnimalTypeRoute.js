@@ -12,23 +12,23 @@
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  *  GNU General Public License for more details, see <https://www.gnu.org/licenses/>.
  */
-
-import express from 'express';
-
-const router = express.Router();
 import CustomAnimalTypeController from '../controllers/customAnimalTypeController.js';
 import checkScope from '../middleware/acl/checkScope.js';
 
-router.get(
-  '/',
-  checkScope(['get:animal_types']),
-  CustomAnimalTypeController.getCustomAnimalTypes(),
-);
+export default (router) => ({
+  path: '/custom_animal_types',
+  loader: () => {
+    router.get(
+      '/',
+      checkScope(['get:animal_types']),
+      CustomAnimalTypeController.getCustomAnimalTypes(),
+    );
 
-router.post(
-  '/',
-  checkScope(['add:animal_types']),
-  CustomAnimalTypeController.addCustomAnimalType(),
-);
-
-export default router;
+    router.post(
+      '/',
+      checkScope(['add:animal_types']),
+      CustomAnimalTypeController.addCustomAnimalType(),
+    );
+    return router;
+  },
+});

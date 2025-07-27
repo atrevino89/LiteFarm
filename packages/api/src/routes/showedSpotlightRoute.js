@@ -13,13 +13,15 @@
  *  GNU General Public License for more details, see <https://www.gnu.org/licenses/>.
  */
 
-import express from 'express';
-
-const router = express.Router();
 import showedSpotlightController from '../controllers/showedSpotlightController.js';
 
-router.get('/', showedSpotlightController.getSpotlightFlags());
 
-router.patch('/', showedSpotlightController.updateSpotlightFlags());
+export default (router) => ({
+  path: '/showed_spotlight',
+  loader: () => {
+    router.get('/', showedSpotlightController.getSpotlightFlags());
+    router.patch('/', showedSpotlightController.updateSpotlightFlags());
 
-export default router;
+    return router;
+  },
+});

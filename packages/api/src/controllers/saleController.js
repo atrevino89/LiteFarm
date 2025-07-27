@@ -37,7 +37,7 @@ const SaleController = {
         res.status(400).json({
           error,
         });
-        // eslint-disable-next-line no-console
+
       }
     };
   },

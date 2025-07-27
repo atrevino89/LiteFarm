@@ -13,9 +13,6 @@
  *  GNU General Public License for more details, see <https://www.gnu.org/licenses/>.
  */
 
-import express from 'express';
-
-const router = express.Router();
 import userFarmController from '../controllers/userFarmController.js';
 import hasFarmAccess from '../middleware/acl/hasFarmAccess.js';
 import checkScope from '../middleware/acl/checkScope.js';
@@ -24,100 +21,106 @@ import checkInviteJwt from '../middleware/acl/checkInviteJwt.js';
 import checkInvitationTokenContent from '../middleware/acl/checkInviteTokenContent.js';
 import checkUserFarmStatus from '../middleware/acl/checkUserFarmStatus.js';
 
-// Get all userFarms for a specified user
-// no permission limits
-router.get('/user/:user_id', userFarmController.getUserFarmByUserID());
 
-// Get info on all users (userFarm) at a farm
-router.get(
-  '/farm/:farm_id',
-  hasFarmAccess({ params: 'farm_id' }),
-  checkScope(['get:user_farm_info']),
-  userFarmController.getUserFarmsByFarmID(),
-);
+export default (router) => ({
+  path: '/user_farm',
+  loader: () => {
+    // Get all userFarms for a specified user
+    // no permission limits
+    router.get('/user/:user_id', userFarmController.getUserFarmByUserID());
 
-// Get info on all active users (userFarm) at a farm
-router.get(
-  '/active/farm/:farm_id',
-  hasFarmAccess({ params: 'farm_id' }),
-  checkScope(['get:user_farm_info']),
-  userFarmController.getActiveUserFarmsByFarmID(),
-);
+    // Get info on all users (userFarm) at a farm
+    router.get(
+      '/farm/:farm_id',
+      hasFarmAccess({ params: 'farm_id' }),
+      checkScope(['get:user_farm_info']),
+      userFarmController.getUserFarmsByFarmID(),
+    );
 
-// Update consent status for a userFarm referenced by user_id
-// If userFarm status is Inactive or Invited, status will be set to Active
-// no permission limits
-router.patch(
-  '/consent/farm/:farm_id/user/:user_id',
-  isSelf,
-  hasFarmAccess({ params: 'farm_id' }),
-  checkUserFarmStatus('Active'),
-  userFarmController.updateConsent(),
-);
+    // Get info on all active users (userFarm) at a farm
+    router.get(
+      '/active/farm/:farm_id',
+      hasFarmAccess({ params: 'farm_id' }),
+      checkScope(['get:user_farm_info']),
+      userFarmController.getActiveUserFarmsByFarmID(),
+    );
 
-// Update the role on a userFarm
-router.patch(
-  '/role/farm/:farm_id/user/:user_id',
-  hasFarmAccess({ params: 'farm_id' }),
-  checkScope(['edit:user_role'], { checkConsent: false }),
-  userFarmController.updateRole(),
-);
+    // Update consent status for a userFarm referenced by user_id
+    // If userFarm status is Inactive or Invited, status will be set to Active
+    // no permission limits
+    router.patch(
+      '/consent/farm/:farm_id/user/:user_id',
+      isSelf,
+      hasFarmAccess({ params: 'farm_id' }),
+      checkUserFarmStatus('Active'),
+      userFarmController.updateConsent(),
+    );
 
-// Update the status on a userFarm
-router.patch(
-  '/status/farm/:farm_id/user/:user_id',
-  hasFarmAccess({ params: 'farm_id' }),
-  checkScope(['edit:user_status']),
-  userFarmController.updateStatus(),
-);
+    // Update the role on a userFarm
+    router.patch(
+      '/role/farm/:farm_id/user/:user_id',
+      hasFarmAccess({ params: 'farm_id' }),
+      checkScope(['edit:user_role'], { checkConsent: false }),
+      userFarmController.updateRole(),
+    );
 
-// Accept an invitation and validate invitation token
-router.patch(
-  '/accept_invitation',
-  checkInviteJwt,
-  checkInvitationTokenContent,
-  userFarmController.acceptInvitation(),
-);
+    // Update the status on a userFarm
+    router.patch(
+      '/status/farm/:farm_id/user/:user_id',
+      hasFarmAccess({ params: 'farm_id' }),
+      checkScope(['edit:user_status']),
+      userFarmController.updateStatus(),
+    );
 
-// Accept an invitation and validate accessToken
-router.patch(
-  '/accept_invitation/farm/:farm_id',
-  hasFarmAccess({ params: 'farm_id' }),
-  checkUserFarmStatus('Invited'),
-  userFarmController.acceptInvitationWithAccessToken(),
-);
+    // Accept an invitation and validate invitation token
+    router.patch(
+      '/accept_invitation',
+      checkInviteJwt,
+      checkInvitationTokenContent,
+      userFarmController.acceptInvitation(),
+    );
 
-// [DEPRECATE] Get specific info related to userFarm
-router.get(
-  '/farm/:farm_id/user/:user_id',
-  hasFarmAccess({ params: 'farm_id' }),
-  checkScope(['get:user_farm_info']),
-  userFarmController.getFarmInfo(),
-);
+    // Accept an invitation and validate accessToken
+    router.patch(
+      '/accept_invitation/farm/:farm_id',
+      hasFarmAccess({ params: 'farm_id' }),
+      checkUserFarmStatus('Invited'),
+      userFarmController.acceptInvitationWithAccessToken(),
+    );
 
-router.post(
-  '/invite/farm/:farm_id/user/:user_id',
-  hasFarmAccess({ params: 'farm_id' }),
-  checkScope(['edit:users']),
-  userFarmController.upgradePseudoUser(),
-);
+    // [DEPRECATE] Get specific info related to userFarm
+    router.get(
+      '/farm/:farm_id/user/:user_id',
+      hasFarmAccess({ params: 'farm_id' }),
+      checkScope(['get:user_farm_info']),
+      userFarmController.getFarmInfo(),
+    );
 
-// Update wage of userFarm
-router.patch(
-  '/wage/farm/:farm_id/user/:user_id',
-  hasFarmAccess({ params: 'farm_id' }),
-  checkScope(['edit:user_wage']),
-  userFarmController.updateWage(),
-);
+    router.post(
+      '/invite/farm/:farm_id/user/:user_id',
+      hasFarmAccess({ params: 'farm_id' }),
+      checkScope(['edit:users']),
+      userFarmController.upgradePseudoUser(),
+    );
 
-router.patch(
-  '/wage_do_not_ask_again/farm/:farm_id/user/:user_id',
-  hasFarmAccess({ params: 'farm_id' }),
-  checkScope(['edit:user_wage']),
-  userFarmController.setWageDoNotAskAgain(),
-);
+    // Update wage of userFarm
+    router.patch(
+      '/wage/farm/:farm_id/user/:user_id',
+      hasFarmAccess({ params: 'farm_id' }),
+      checkScope(['edit:user_wage']),
+      userFarmController.updateWage(),
+    );
 
-// Update step_one
-router.patch('/onboarding/farm/:farm_id/user/:user_id', userFarmController.updateOnboardingFlags());
+    router.patch(
+      '/wage_do_not_ask_again/farm/:farm_id/user/:user_id',
+      hasFarmAccess({ params: 'farm_id' }),
+      checkScope(['edit:user_wage']),
+      userFarmController.setWageDoNotAskAgain(),
+    );
 
-export default router;
+    // Update step_one
+    router.patch('/onboarding/farm/:farm_id/user/:user_id', userFarmController.updateOnboardingFlags());
+
+    return router;
+  },
+});

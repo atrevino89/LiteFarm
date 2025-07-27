@@ -13,9 +13,17 @@
  *  GNU General Public License for more details, see <https://www.gnu.org/licenses/>.
  */
 
-import express from 'express';
+import checkScope from '../middleware/acl/checkScope.js';
+import hasFarmAccess from '../middleware/acl/hasFarmAccess.js';
+import validateFileExtension from '../middleware/validation/uploadDocument.js';
+import documentController from '../controllers/documentController.js';
+import multerDiskUpload from '../util/fileUpload.js';
+import {
+  checkCreateDocument,
+  checkUpdateDocument,
+} from '../middleware/validation/checkDocument.js';
 
-const router = express.Router();
+
 import checkScope from '../middleware/acl/checkScope.js';
 import hasFarmAccess from '../middleware/acl/hasFarmAccess.js';
 import validateFilesLength from '../middleware/validation/createDocument.js';
@@ -23,43 +31,50 @@ import validateFileExtension from '../middleware/validation/uploadDocument.js';
 import documentController from '../controllers/documentController.js';
 import multerDiskUpload from '../util/fileUpload.js';
 
-router.get(
-  '/farm/:farm_id',
-  hasFarmAccess({ params: 'farm_id' }),
-  checkScope(['get:document']),
-  documentController.getDocumentsByFarmId(),
-);
 
-router.post(
-  '/upload/farm/:farm_id',
-  hasFarmAccess({ params: 'farm_id' }),
-  checkScope(['add:document']),
-  multerDiskUpload,
-  validateFileExtension,
-  documentController.uploadDocument(),
-);
+export default (router) => ({
+  path: '/document',
+  loader: () => {
+    router.get(
+      '/farm/:farm_id',
+      hasFarmAccess({ params: 'farm_id' }),
+      checkScope(['get:document']),
+      documentController.getDocumentsByFarmId(),
+    );
 
-router.patch(
-  '/archive/:document_id',
-  hasFarmAccess({ params: 'document_id' }),
-  checkScope(['edit:document']),
-  documentController.patchDocumentArchive(),
-);
+    router.post(
+      '/upload/farm/:farm_id',
+      hasFarmAccess({ params: 'farm_id' }),
+      checkScope(['add:document']),
+      multerDiskUpload,
+      validateFileExtension,
+      documentController.uploadDocument(),
+    );
 
-router.post(
-  '/farm/:farm_id',
-  hasFarmAccess({ params: 'farm_id' }),
-  checkScope(['add:document']),
-  validateFilesLength,
-  documentController.createDocument(),
-);
+    router.patch(
+      '/archive/:document_id',
+      hasFarmAccess({ params: 'document_id' }),
+      checkScope(['edit:document']),
+      documentController.patchDocumentArchive(),
+    );
 
-router.put(
-  '/:document_id',
-  hasFarmAccess({ params: 'document_id' }),
-  checkScope(['edit:document']),
-  validateFilesLength,
-  documentController.updateDocument(),
-);
+    router.post(
+      '/farm/:farm_id',
+      hasFarmAccess({ body: 'farm_id' }),
+      hasFarmAccess({ params: 'farm_id' }),
+      checkScope(['add:document']),
+      checkCreateDocument(),
+      documentController.createDocument(),
+    );
 
-export default router;
+    router.put(
+      '/:document_id',
+      hasFarmAccess({ params: 'document_id' }),
+      checkScope(['edit:document']),
+      checkUpdateDocument(),
+      documentController.updateDocument(),
+    );
+
+    return router;
+  },
+});

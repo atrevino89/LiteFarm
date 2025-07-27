@@ -13,42 +13,44 @@
  *  GNU General Public License for more details, see <https://www.gnu.org/licenses/>.
  */
 
-import express from 'express';
-
-const router = express.Router();
 import RevenueTypeController from '../controllers/revenueTypeController.js';
 import checkScope from '../middleware/acl/checkScope.js';
 import hasFarmAccess from '../middleware/acl/hasFarmAccess.js';
 
-router.post(
-  '/',
-  hasFarmAccess({ body: 'farm_id' }),
-  checkScope(['add:revenue_types']),
-  RevenueTypeController.addType(),
-);
-router.get(
-  '/farm/:farm_id',
-  hasFarmAccess({ params: 'farm_id' }),
-  checkScope(['get:revenue_types']),
-  RevenueTypeController.getFarmRevenueType(),
-);
-router.get(
-  '/:revenue_type_id',
-  hasFarmAccess({ params: 'revenue_type_id' }),
-  checkScope(['get:revenue_types']),
-  RevenueTypeController.getTypeByID(),
-);
-router.delete(
-  '/:revenue_type_id',
-  hasFarmAccess({ params: 'revenue_type_id' }),
-  checkScope(['delete:revenue_types']),
-  RevenueTypeController.delType(),
-);
-router.patch(
-  '/:revenue_type_id',
-  hasFarmAccess({ params: 'revenue_type_id' }),
-  checkScope(['edit:revenue_types']),
-  RevenueTypeController.updateRevenueType(),
-);
+export default (router) => ({
+  path: '/revenue_type',
+  loader: () => {
+    router.post(
+      '/',
+      hasFarmAccess({ body: 'farm_id' }),
+      checkScope(['add:revenue_types']),
+      RevenueTypeController.addType(),
+    );
+    router.get(
+      '/farm/:farm_id',
+      hasFarmAccess({ params: 'farm_id' }),
+      checkScope(['get:revenue_types']),
+      RevenueTypeController.getFarmRevenueType(),
+    );
+    router.get(
+      '/:revenue_type_id',
+      hasFarmAccess({ params: 'revenue_type_id' }),
+      checkScope(['get:revenue_types']),
+      RevenueTypeController.getTypeByID(),
+    );
+    router.delete(
+      '/:revenue_type_id',
+      hasFarmAccess({ params: 'revenue_type_id' }),
+      checkScope(['delete:revenue_types']),
+      RevenueTypeController.delType(),
+    );
+    router.patch(
+      '/:revenue_type_id',
+      hasFarmAccess({ params: 'revenue_type_id' }),
+      checkScope(['edit:revenue_types']),
+      RevenueTypeController.updateRevenueType(),
+    );
 
-export default router;
+    return router;
+  },
+});

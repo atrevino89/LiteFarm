@@ -13,12 +13,15 @@
  *  GNU General Public License for more details, see <https://www.gnu.org/licenses/>.
  */
 
-import express from 'express';
-
-const router = express.Router();
 import checkScope from '../middleware/acl/checkScope.js';
 import animalUseController from '../controllers/animalUseController.js';
 
-router.get('/', checkScope(['get:animal_uses']), animalUseController.getAnimalUses());
 
-export default router;
+export default (router) => ({
+  path: '/animal_uses',
+  loader: () => {
+    router.get('/', checkScope(['get:animal_uses']), animalUseController.getAnimalUses());
+
+    return router;
+  },
+});

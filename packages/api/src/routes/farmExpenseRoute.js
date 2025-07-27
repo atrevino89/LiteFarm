@@ -13,51 +13,55 @@
  *  GNU General Public License for more details, see <https://www.gnu.org/licenses/>.
  */
 
-import express from 'express';
-
-const router = express.Router();
 import farmExpenseController from '../controllers/farmExpenseController.js';
 import checkScope from '../middleware/acl/checkScope.js';
 import hasFarmAccess from '../middleware/acl/hasFarmAccess.js';
 import conditionallyApplyMiddleware from '../middleware/acl/conditionally.apply.js';
 import isCreator from '../middleware/acl/isCreator.js';
 
-router.get(
-  '/farm/:farm_id',
-  hasFarmAccess({ params: 'farm_id' }),
-  checkScope(['get:expenses']),
-  farmExpenseController.getAllFarmExpense(),
-);
 
-router.post(
-  '/farm/:farm_id',
-  hasFarmAccess({ body: 'farm_id' }),
-  checkScope(['add:expenses']),
-  farmExpenseController.addFarmExpense(),
-);
+export default (router) => ({
+  path: '/expense',
+  loader: () => {
+        router.get(
+      '/farm/:farm_id',
+      hasFarmAccess({ params: 'farm_id' }),
+      checkScope(['get:expenses']),
+      farmExpenseController.getAllFarmExpense(),
+    );
 
-router.patch(
-  '/:farm_expense_id',
-  checkScope(['delete:expenses']),
-  (req, res, next) =>
-    conditionallyApplyMiddleware(
-      req.role === 3,
-      isCreator({ params: 'farm_expense_id' }),
-      hasFarmAccess({ params: 'farm_expense_id' }),
-    )(req, res, next),
-  farmExpenseController.updateFarmExpense(),
-);
+    router.post(
+      '/farm/:farm_id',
+      hasFarmAccess({ body: 'farm_id' }),
+      checkScope(['add:expenses']),
+      farmExpenseController.addFarmExpense(),
+    );
 
-router.delete(
-  '/:farm_expense_id',
-  checkScope(['delete:expenses']),
-  (req, res, next) =>
-    conditionallyApplyMiddleware(
-      req.role === 3,
-      isCreator({ params: 'farm_expense_id' }),
-      hasFarmAccess({ params: 'farm_expense_id' }),
-    )(req, res, next),
-  farmExpenseController.delFarmExpense(),
-);
+    router.patch(
+      '/:farm_expense_id',
+      checkScope(['delete:expenses']),
+      (req, res, next) =>
+        conditionallyApplyMiddleware(
+          req.role === 3,
+          isCreator({ params: 'farm_expense_id' }),
+          hasFarmAccess({ params: 'farm_expense_id' }),
+        )(req, res, next),
+      farmExpenseController.updateFarmExpense(),
+    );
 
-export default router;
+    router.delete(
+      '/:farm_expense_id',
+      checkScope(['delete:expenses']),
+      (req, res, next) =>
+        conditionallyApplyMiddleware(
+          req.role === 3,
+          isCreator({ params: 'farm_expense_id' }),
+          hasFarmAccess({ params: 'farm_expense_id' }),
+        )(req, res, next),
+      farmExpenseController.delFarmExpense(),
+    );
+
+
+    return router;
+  },
+});

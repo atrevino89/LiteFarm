@@ -13,30 +13,33 @@
  *  GNU General Public License for more details, see <https://www.gnu.org/licenses/>.
  */
 
-import express from 'express';
-
-const router = express.Router();
 import diseaseController from '../controllers/diseaseController.js';
 import hasFarmAccess from '../middleware/acl/hasFarmAccess.js';
 import checkScope from '../middleware/acl/checkScope.js';
 
-router.get(
-  '/farm/:farm_id',
-  hasFarmAccess({ params: 'farm_id' }),
-  checkScope(['get:diseases']),
-  diseaseController.getDisease(),
-);
-router.post(
-  '/',
-  hasFarmAccess({ body: 'farm_id' }),
-  checkScope(['add:diseases']),
-  diseaseController.addDisease(),
-);
-router.delete(
-  '/:disease_id',
-  hasFarmAccess({ params: 'disease_id' }),
-  checkScope(['delete:diseases']),
-  diseaseController.delDisease(),
-);
 
-export default router;
+export default (router) => ({
+  path: '/disease',
+  loader: () => {
+    router.get(
+      '/farm/:farm_id',
+      hasFarmAccess({ params: 'farm_id' }),
+      checkScope(['get:diseases']),
+      diseaseController.getDisease(),
+    );
+    router.post(
+      '/',
+      hasFarmAccess({ body: 'farm_id' }),
+      checkScope(['add:diseases']),
+      diseaseController.addDisease(),
+    );
+    router.delete(
+      '/:disease_id',
+      hasFarmAccess({ params: 'disease_id' }),
+      checkScope(['delete:diseases']),
+      diseaseController.delDisease(),
+    );
+
+    return router;
+  },
+});

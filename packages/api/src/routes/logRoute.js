@@ -14,23 +14,26 @@
  */
 
 import logController from '../controllers/logController.js';
-
-import express from 'express';
-const router = express.Router();
 import checkScope from '../middleware/acl/checkScope.js';
 import hasFarmAccess from '../middleware/acl/hasFarmAccess.js';
 
-router.get(
-  '/harvest_use_types/farm/:farm_id',
-  hasFarmAccess({ params: 'farm_id' }),
-  checkScope(['get:logs']),
-  logController.getHarvestUseTypesByFarmID(),
-);
-router.post(
-  '/harvest_use_types/farm/:farm_id',
-  hasFarmAccess({ params: 'farm_id' }),
-  checkScope(['add:harvest_use']),
-  logController.addHarvestUseType(),
-);
 
-export default router;
+export default (router) => ({
+  path: '/log',
+  loader: () => {
+    router.get(
+      '/harvest_use_types/farm/:farm_id',
+      hasFarmAccess({ params: 'farm_id' }),
+      checkScope(['get:logs']),
+      logController.getHarvestUseTypesByFarmID(),
+    );
+    router.post(
+      '/harvest_use_types/farm/:farm_id',
+      hasFarmAccess({ params: 'farm_id' }),
+      checkScope(['add:harvest_use']),
+      logController.addHarvestUseType(),
+    );
+
+    return router;
+  },
+});

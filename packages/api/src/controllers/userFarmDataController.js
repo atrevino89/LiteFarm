@@ -17,7 +17,6 @@ import baseController from '../controllers/baseController.js';
 
 import FarmDataScheduleModel from '../models/farmDataScheduleModel.js';
 
-/* eslint-disable no-console */
 
 const userFarmDataController = {
   registerFarm() {

@@ -13,18 +13,21 @@
  *  GNU General Public License for more details, see <https://www.gnu.org/licenses/>.
  */
 
-import express from 'express';
-
-const router = express.Router();
 import farmTokenController from '../controllers/farmTokenController.js';
 import hasFarmAccess from '../middleware/acl/hasFarmAccess.js';
 import checkScope from '../middleware/acl/checkScope.js';
 
-router.get(
-  '/farm/:farm_id',
-  hasFarmAccess({ params: 'farm_id' }),
-  checkScope(['get:user_farm_info'], { checkConsent: false }),
-  farmTokenController.getFarmToken(),
-);
 
-export default router;
+export default (router) => ({
+  path: '/farm_token',
+  loader: () => {
+    router.get(
+      '/farm/:farm_id',
+      hasFarmAccess({ params: 'farm_id' }),
+      checkScope(['get:user_farm_info'], { checkConsent: false }),
+      farmTokenController.getFarmToken(),
+    );
+
+    return router;
+  },
+});

@@ -13,31 +13,34 @@
  *  GNU General Public License for more details, see <https://www.gnu.org/licenses/>.
  */
 
-import express from 'express';
-
-const router = express.Router();
 import fertilizerController from '../controllers/fertilizerController.js';
 import hasFarmAccess from '../middleware/acl/hasFarmAccess.js';
 import checkScope from '../middleware/acl/checkScope.js';
 
-//router.get('/', fertilizerController.getFertilizers());
-router.get(
-  '/farm/:farm_id',
-  hasFarmAccess({ params: 'farm_id' }),
-  checkScope(['get:fertilizers']),
-  fertilizerController.getFertilizers(),
-);
-router.post(
-  '/farm/:farm_id',
-  hasFarmAccess({ body: 'farm_id' }),
-  checkScope(['add:fertilizers']),
-  fertilizerController.addFertilizer(),
-);
-router.delete(
-  '/:fertilizer_id',
-  hasFarmAccess({ params: 'fertilizer_id' }),
-  checkScope(['delete:fertilizers']),
-  fertilizerController.delFertilizer(),
-);
 
-export default router;
+export default (router) => ({
+  path: '/fertilizer',
+  loader: () => {
+    //router.get('/', fertilizerController.getFertilizers());
+    router.get(
+      '/farm/:farm_id',
+      hasFarmAccess({ params: 'farm_id' }),
+      checkScope(['get:fertilizers']),
+      fertilizerController.getFertilizers(),
+    );
+    router.post(
+      '/farm/:farm_id',
+      hasFarmAccess({ body: 'farm_id' }),
+      checkScope(['add:fertilizers']),
+      fertilizerController.addFertilizer(),
+    );
+    router.delete(
+      '/:fertilizer_id',
+      hasFarmAccess({ params: 'fertilizer_id' }),
+      checkScope(['delete:fertilizers']),
+      fertilizerController.delFertilizer(),
+    );
+
+    return router;
+  },
+});

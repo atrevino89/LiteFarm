@@ -13,40 +13,43 @@
  *  GNU General Public License for more details, see <https://www.gnu.org/licenses/>.
  */
 
-import express from 'express';
-
-const router = express.Router();
 import yieldController from '../controllers/yieldController.js';
 import checkScope from '../middleware/acl/checkScope.js';
 import hasFarmAccess from '../middleware/acl/hasFarmAccess.js';
 
-// Get the crop on a bed
-router.get(
-  '/farm/:farm_id',
-  hasFarmAccess({ params: 'farm_id' }),
-  checkScope(['get:yields']),
-  yieldController.getYieldByFarmId(),
-);
 
-router.post(
-  '/',
-  hasFarmAccess({ body: 'farm_id' }),
-  checkScope(['add:yields']),
-  yieldController.addYield(),
-);
+export default (router) => ({
+  path: '/yield',
+  loader: () => {
+    // Get the crop on a bed
+    router.get(
+      '/farm/:farm_id',
+      hasFarmAccess({ params: 'farm_id' }),
+      checkScope(['get:yields']),
+      yieldController.getYieldByFarmId(),
+    );
 
-router.put(
-  '/:id',
-  hasFarmAccess({ body: 'farm_id' }),
-  checkScope(['edit:yields']),
-  yieldController.updateYield(),
-);
+    router.post(
+      '/',
+      hasFarmAccess({ body: 'farm_id' }),
+      checkScope(['add:yields']),
+      yieldController.addYield(),
+    );
 
-router.delete(
-  '/:yield_id',
-  hasFarmAccess({ params: 'yield_id' }),
-  checkScope(['delete:yields']),
-  yieldController.delYield(),
-);
+    router.put(
+      '/:id',
+      hasFarmAccess({ body: 'farm_id' }),
+      checkScope(['edit:yields']),
+      yieldController.updateYield(),
+    );
 
-export default router;
+    router.delete(
+      '/:yield_id',
+      hasFarmAccess({ params: 'yield_id' }),
+      checkScope(['delete:yields']),
+      yieldController.delYield(),
+    );
+
+    return router;
+  },
+});

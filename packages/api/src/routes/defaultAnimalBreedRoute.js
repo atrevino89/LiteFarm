@@ -12,12 +12,13 @@
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  *  GNU General Public License for more details, see <https://www.gnu.org/licenses/>.
  */
-
-import express from 'express';
-
-const router = express.Router();
 import DefaultAnimalBreedController from '../controllers/defaultAnimalBreedController.js';
 
-router.get('/', DefaultAnimalBreedController.getDefaultAnimalBreeds());
+export default (router) => ({
+  path: '/default_animal_breeds',
+  loader: () => {
 
-export default router;
+   router.get('/', DefaultAnimalBreedController.getDefaultAnimalBreeds());
+   return router;
+  },
+});

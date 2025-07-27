@@ -12,10 +12,6 @@
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  *  GNU General Public License for more details, see <https://www.gnu.org/licenses/>.
  */
-
-import express from 'express';
-
-const router = express.Router();
 import checkScope from '../middleware/acl/checkScope.js';
 import hasFarmAccess from '../middleware/acl/hasFarmAccess.js';
 import AnimalController from '../controllers/animalController.js';
@@ -28,40 +24,46 @@ import {
   checkDeleteAnimalOrBatch,
 } from '../middleware/validation/checkAnimalOrBatch.js';
 
-router.get('/', checkScope(['get:animals']), AnimalController.getFarmAnimals());
-router.post(
-  '/',
-  checkScope(['add:animals']),
-  checkCreateAnimalOrBatch('animal'),
-  AnimalController.addAnimals(),
-);
-router.patch(
-  '/',
-  checkScope(['edit:animals']),
-  checkEditAnimalOrBatch('animal'),
-  // Can't use hasFarmAccess because body is an array & because of non-unique id field
-  AnimalController.editAnimals(),
-);
-router.patch(
-  '/remove',
-  checkScope(['edit:animals']),
-  checkRemoveAnimalOrBatch('animal'),
-  // Can't use hasFarmAccess because body is an array & because of non-unique id field
-  AnimalController.removeAnimals(),
-);
-router.delete(
-  '/',
-  checkScope(['delete:animals']),
-  checkDeleteAnimalOrBatch('animal'),
-  AnimalController.deleteAnimals(),
-);
-router.post(
-  '/upload/farm/:farm_id',
-  hasFarmAccess({ params: 'farm_id' }),
-  checkScope(['add:animals']),
-  multerDiskUpload,
-  validateFileExtension,
-  AnimalController.uploadAnimalImage(),
-);
 
-export default router;
+export default (router) => ({
+  path: '/animals',
+  loader: () => {
+    router.get('/', checkScope(['get:animals']), AnimalController.getFarmAnimals());
+    router.post(
+      '/',
+      checkScope(['add:animals']),
+      checkCreateAnimalOrBatch('animal'),
+      AnimalController.addAnimals(),
+    );
+    router.patch(
+      '/',
+      checkScope(['edit:animals']),
+      checkEditAnimalOrBatch('animal'),
+      // Can't use hasFarmAccess because body is an array & because of non-unique id field
+      AnimalController.editAnimals(),
+    );
+    router.patch(
+      '/remove',
+      checkScope(['edit:animals']),
+      checkRemoveAnimalOrBatch('animal'),
+      // Can't use hasFarmAccess because body is an array & because of non-unique id field
+      AnimalController.removeAnimals(),
+    );
+    router.delete(
+      '/',
+      checkScope(['delete:animals']),
+      checkDeleteAnimalOrBatch('animal'),
+      AnimalController.deleteAnimals(),
+    );
+    router.post(
+      '/upload/farm/:farm_id',
+      hasFarmAccess({ params: 'farm_id' }),
+      checkScope(['add:animals']),
+      multerDiskUpload,
+      validateFileExtension,
+      AnimalController.uploadAnimalImage(),
+    );
+
+    return router;
+  },
+});

@@ -13,14 +13,17 @@
  *  GNU General Public License for more details, see <https://www.gnu.org/licenses/>.
  */
 
-import express from 'express';
-
-const router = express.Router();
 import releaseBadgeController from '../controllers/releaseBadgeController.js';
 import isSelf from '../middleware/acl/isSelf.js';
 
-router.get('/', isSelf, releaseBadgeController.getReleaseBadgeVersion());
 
-router.patch('/', isSelf, releaseBadgeController.updateReleaseBadgeVersion());
+export default (router) => ({
+  path: '/release_badge',
+  loader: () => {
+    router.get('/', isSelf, releaseBadgeController.getReleaseBadgeVersion());
 
-export default router;
+    router.patch('/', isSelf, releaseBadgeController.updateReleaseBadgeVersion());
+
+    return router;
+  },
+});

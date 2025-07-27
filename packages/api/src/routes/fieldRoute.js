@@ -13,41 +13,45 @@
  *  GNU General Public License for more details, see <https://www.gnu.org/licenses/>.
  */
 
-import express from 'express';
-
-const router = express.Router();
 import fieldController from '../controllers/fieldController.js';
 import checkScope from '../middleware/acl/checkScope.js';
 import hasFarmAccess from '../middleware/acl/hasFarmAccess.js';
 
-// Get the crop on a bed
-router.get(
-  '/farm/:farm_id',
-  hasFarmAccess({ params: 'farm_id' }),
-  checkScope(['get:fields']),
-  fieldController.getFieldByFarmID(),
-);
 
-router.post(
-  '/',
-  hasFarmAccess({ body: 'farm_id' }),
-  checkScope(['add:fields']),
-  fieldController.addField(),
-  fieldController.mapFieldToStation,
-);
+export default (router) => ({
+  path: '/field',
+  loader: () => {
+    // Get the crop on a bed
+    router.get(
+      '/farm/:farm_id',
+      hasFarmAccess({ params: 'farm_id' }),
+      checkScope(['get:fields']),
+      fieldController.getFieldByFarmID(),
+    );
 
-router.put(
-  '/:field_id',
-  hasFarmAccess({ params: 'field_id' }),
-  checkScope(['edit:fields']),
-  fieldController.updateField(),
-);
+    router.post(
+      '/',
+      hasFarmAccess({ body: 'farm_id' }),
+      checkScope(['add:fields']),
+      fieldController.addField(),
+      fieldController.mapFieldToStation,
+    );
 
-router.delete(
-  '/:field_id',
-  hasFarmAccess({ params: 'field_id' }),
-  checkScope(['delete:fields']),
-  fieldController.delField(),
-);
+    router.put(
+      '/:field_id',
+      hasFarmAccess({ params: 'field_id' }),
+      checkScope(['edit:fields']),
+      fieldController.updateField(),
+    );
 
-export default router;
+    router.delete(
+      '/:field_id',
+      hasFarmAccess({ params: 'field_id' }),
+      checkScope(['delete:fields']),
+      fieldController.delField(),
+    );
+
+
+    return router;
+  },
+});

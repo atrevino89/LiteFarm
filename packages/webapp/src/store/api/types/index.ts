@@ -15,6 +15,14 @@
 
 import { TASK_TYPES } from '../../../containers/Task/constants';
 import { OrganicStatus } from '../../../types';
+import {
+  UriPrescriptionData,
+  VriPrescriptionData,
+} from '../../../components/IrrigationPrescription/types';
+import type {
+  EvapotranspirationRateUnits,
+  WaterConsumptionUnits,
+} from '../../../util/convert-units/extendedMeasures';
 
 // If we don't necessarily want to type an endpoint
 export type Result = Array<{ [key: string]: any }>;
@@ -230,14 +238,14 @@ export type SoilAmendmentProduct = Product & {
 };
 
 // As specified by Ensemble
-type SensorTypes =
+export type SensorTypes =
   | 'Weather station'
   | 'Soil Water Potential Sensor'
   | 'IR Temperature Sensor'
   | 'Wind speed sensor'
   | 'Drip line pressure sensor';
 
-type SensorReadingTypes =
+export type SensorReadingTypes =
   | 'barometric_pressure'
   | 'cumulative_rainfall'
   | 'current'
@@ -257,14 +265,14 @@ type SensorReadingTypes =
 
 export interface Sensor {
   name: SensorTypes;
+  label: string; // descriptive name provided by Ensemble
   external_id: string; // esid
-  sensor_reading_types: SensorReadingTypes[];
   point: {
     lat: number;
     lng: number;
   };
   depth: number;
-  depth_unit: 'cm'; // to be confirmed
+  depth_unit: 'cm';
   last_seen: string;
   sensor_array_id: string | null;
   location_id: string; //backwards compatibility only
@@ -272,13 +280,14 @@ export interface Sensor {
 
 export interface SensorArray {
   id: string;
+  label: string; // descriptive name provided by Ensemble
+  system: string; // descriptive name for the irrigation system
   sensors: Sensor['external_id'][];
   point: {
     lat: number;
     lng: number;
   };
   location_id: string; // backwards compatibility only
-  name: string; // backwards compatibility only
 }
 
 export interface SensorData {
@@ -292,7 +301,7 @@ export interface FarmAddon {
   org_uuid: string;
 }
 
-type SensorReadingTypeUnits =
+export type SensorReadingTypeUnits =
   | 'hPa'
   | 'mm'
   | 'mA'
@@ -309,7 +318,7 @@ type SensorReadingTypeUnits =
 
 export interface SensorDatapoint {
   dateTime: number; // Unix timestamp
-  [esid: string]: number;
+  [esid: string]: number | undefined; // Allow missing keys
 }
 
 export interface SensorReadings {
@@ -317,3 +326,60 @@ export interface SensorReadings {
   unit: SensorReadingTypeUnits;
   readings: SensorDatapoint[];
 }
+export interface IrrigationPrescription {
+  id: number;
+  location_id: string;
+  management_plan_id?: number | string;
+  recommended_start_date: string;
+  partner_id: number;
+  task_id?: number | string;
+}
+
+export type IrrigationPrescriptionDetails = {
+  id: number;
+
+  location_id: string;
+  management_plan_id: number | null;
+  recommended_start_date: string; // ISO string
+
+  system_name: string; // descriptive name for the irrigation system
+  system_id: string;
+
+  pivot: {
+    center: { lat: number; lng: number };
+    radius: number; // in meters
+    arc?: {
+      start_angle: number; // in mathematical degrees (0 = east, 90 = north, etc.)
+      end_angle: number; // defined clockwise from start angle
+    };
+  };
+
+  metadata: {
+    // metadata = external sources of information used to generate the irrigation prescription
+    weather_forecast: {
+      temperature: number;
+      temperature_unit: SensorReadingTypeUnits;
+      wind_speed: number;
+      wind_speed_unit: SensorReadingTypeUnits;
+      cumulative_rainfall: number;
+      cumulative_rainfall_unit: SensorReadingTypeUnits;
+      et_rate: number;
+      et_rate_unit: EvapotranspirationRateUnits;
+      weather_icon_code: string; // '02d', '50n', OpenWeatherMap icon code
+    };
+  };
+
+  // calculated by the backend
+  estimated_water_consumption: number;
+  estimated_water_consumption_unit: WaterConsumptionUnits;
+
+  prescription:
+    | { uriData: UriPrescriptionData; vriData?: never }
+    | {
+        vriData: {
+          zones: VriPrescriptionData[];
+          file_url: string;
+        };
+        uriData?: never;
+      };
+};

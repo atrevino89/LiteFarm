@@ -13,11 +13,14 @@
  *  GNU General Public License for more details, see <https://www.gnu.org/licenses/>.
  */
 
-import express from 'express';
-
-const router = express.Router();
 import soilAmendmentMethodController from '../controllers/soilAmendmentMethodController.js';
 
-router.get('/', soilAmendmentMethodController.getSoilAmendmentMethods());
 
-export default router;
+export default (router) => ({
+  path: '/soil_amendment_methods',
+  loader: () => {
+    router.get('/', soilAmendmentMethodController.getSoilAmendmentMethods());
+
+    return router;
+  },
+});

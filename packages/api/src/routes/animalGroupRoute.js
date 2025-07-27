@@ -13,13 +13,16 @@
  *  GNU General Public License for more details, see <https://www.gnu.org/licenses/>.
  */
 
-import express from 'express';
-
-const router = express.Router();
 import AnimalGroupController from '../controllers/animalGroupController.js';
 import checkScope from '../middleware/acl/checkScope.js';
 
-router.get('/', checkScope(['get:animal_groups']), AnimalGroupController.getFarmAnimalGroups());
-router.post('/', checkScope(['add:animal_groups']), AnimalGroupController.addAnimalGroup());
 
-export default router;
+export default (router) => ({
+  path: '', // TODO: this route didn't state any path, might be a placedholder route
+  loader: () => {
+   router.get('/', checkScope(['get:animal_groups']), AnimalGroupController.getFarmAnimalGroups());
+   router.post('/', checkScope(['add:animal_groups']), AnimalGroupController.addAnimalGroup());
+
+    return router;
+  },
+});

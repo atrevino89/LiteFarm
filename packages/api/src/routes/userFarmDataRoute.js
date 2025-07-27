@@ -13,24 +13,28 @@
  *  GNU General Public License for more details, see <https://www.gnu.org/licenses/>.
  */
 
-import express from 'express';
-
-const router = express.Router();
 import userFarmDataController from '../controllers/userFarmDataController.js';
 import checkScope from '../middleware/acl/checkScope.js';
 import hasFarmAccess from '../middleware/acl/hasFarmAccess.js';
 
-router.post(
-  '/',
-  hasFarmAccess({ body: 'farm_id' }),
-  checkScope(['add:farm_schedules']),
-  userFarmDataController.registerFarm(),
-);
-router.get(
-  '/:farm_id',
-  hasFarmAccess({ params: 'farm_id' }),
-  checkScope(['get:farm_schedules']),
-  userFarmDataController.getSchedule(),
-);
 
-export default router;
+export default (router) => ({
+  path: '/farmdata',
+  loader: () => {
+
+    router.post(
+      '/',
+      hasFarmAccess({ body: 'farm_id' }),
+      checkScope(['add:farm_schedules']),
+      userFarmDataController.registerFarm(),
+    );
+    router.get(
+      '/:farm_id',
+      hasFarmAccess({ params: 'farm_id' }),
+      checkScope(['get:farm_schedules']),
+      userFarmDataController.getSchedule(),
+    );
+
+    return router;
+  },
+});

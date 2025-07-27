@@ -13,16 +13,18 @@
  *  GNU General Public License for more details, see <https://www.gnu.org/licenses/>.
  */
 
-import express from 'express';
-
-const router = express.Router();
 import checkScope from '../middleware/acl/checkScope.js';
 import animalRemovalReasonController from '../controllers/animalRemovalReasonController.js';
 
-router.get(
-  '/',
-  checkScope(['get:animal_removal_reasons']),
-  animalRemovalReasonController.getAnimalRemovalReasons(),
-);
+export default (router) => ({
+  path: '/animal_removal_reasons',
+  loader: () => {
+    router.get(
+      '/',
+      checkScope(['get:animal_removal_reasons']),
+      animalRemovalReasonController.getAnimalRemovalReasons(),
+    );
 
-export default router;
+   return router;
+  },
+});

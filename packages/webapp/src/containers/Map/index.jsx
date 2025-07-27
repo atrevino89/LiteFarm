@@ -8,12 +8,7 @@ import { DEFAULT_ZOOM, GMAPS_API_KEY, isArea, isLine, locationEnum } from './con
 import { useDispatch, useSelector } from 'react-redux';
 import { measurementSelector, userFarmSelector } from '../userFarmSlice';
 import html2canvas from 'html2canvas';
-import {
-  sendMapToEmail,
-  setSpotlightToShown,
-  getSensorReadings,
-  getAllSensorReadingTypes,
-} from './saga';
+import { sendMapToEmail, setSpotlightToShown } from './saga';
 import {
   canShowSuccessHeader,
   setShowSuccessHeaderSelector,
@@ -62,6 +57,10 @@ import {
 } from './mapAddDrawerSlice';
 import clsx from 'clsx';
 import { ADD_SENSORS_URL } from '../../util/siteMapConstants';
+import {
+  cleanupGeometryListeners,
+  cleanupInstanceListeners,
+} from '../../util/google-maps/cleanupListeners';
 
 export default function Map({ history, isCompactSideMenu }) {
   const { farm_name, grid_points, is_admin, farm_id } = useSelector(userFarmSelector);
@@ -185,11 +184,28 @@ export default function Map({ history, isCompactSideMenu }) {
       fullscreenControl: false,
     };
   };
-  const { drawAssets } = useMapAssetRenderer({
+  const { drawAssets, assetGeometriesRef, markerClusterRef } = useMapAssetRenderer({
     isClickable: !drawingState.type,
     drawingState: drawingState,
     showingConfirmButtons: showingConfirmButtons,
   });
+
+  // Cleanup listeners on map instance objects
+  useEffect(() => {
+    if (!gMaps) return;
+    return () => {
+      if (assetGeometriesRef.current) {
+        cleanupGeometryListeners(assetGeometriesRef.current, gMaps);
+      }
+      if (markerClusterRef.current) {
+        cleanupInstanceListeners(markerClusterRef.current, gMaps);
+      }
+      if (drawingState.drawingManager) {
+        cleanupInstanceListeners(drawingState.drawingManager, gMaps);
+      }
+    };
+  }, [gMaps]);
+
   const { getMaxZoom, maxZoom } = useMaxZoom();
   const handleGoogleMapApi = (map, maps) => {
     getMaxZoom(maps, map);
@@ -341,11 +357,6 @@ export default function Map({ history, isCompactSideMenu }) {
   };
 
   const availableFilterSettings = useSelector(availableFilterSettingsSelector);
-
-  useEffect(() => {
-    dispatch(getSensorReadings());
-    dispatch(getAllSensorReadingTypes());
-  }, []);
 
   const handleAddMenuClick = (locationType) => {
     setZeroAreaWarning(false);

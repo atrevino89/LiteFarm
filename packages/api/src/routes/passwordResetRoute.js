@@ -13,27 +13,30 @@
  *  GNU General Public License for more details, see <https://www.gnu.org/licenses/>.
  */
 
-import express from 'express';
-
-const router = express.Router();
 import passwordResetController from '../controllers/passwordResetController.js';
 import checkResetPasswordJwt from '../middleware/acl/checkResetPasswordJwt.js';
 import checkResetPasswordTokenContent from '../middleware/acl/checkResetPasswordTokenContent.js';
 
-router.post('/send_email', passwordResetController.sendResetEmail());
 
-router.get(
-  '/validate',
-  checkResetPasswordJwt,
-  checkResetPasswordTokenContent,
-  passwordResetController.validateToken(),
-);
+export default (router) => ({
+  path: '/password_reset',
+  loader: () => {
+    router.post('/send_email', passwordResetController.sendResetEmail());
 
-router.put(
-  '/',
-  checkResetPasswordJwt,
-  checkResetPasswordTokenContent,
-  passwordResetController.resetPassword(),
-);
+    router.get(
+      '/validate',
+      checkResetPasswordJwt,
+      checkResetPasswordTokenContent,
+      passwordResetController.validateToken(),
+    );
 
-export default router;
+    router.put(
+      '/',
+      checkResetPasswordJwt,
+      checkResetPasswordTokenContent,
+      passwordResetController.resetPassword(),
+    );
+
+    return router;
+  },
+});

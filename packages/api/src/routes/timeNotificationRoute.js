@@ -15,23 +15,34 @@
 
 import timeNotificationController from '../controllers/timeNotificationController.js';
 
-import express from 'express';
 import checkSchedulerJwt from '../middleware/acl/checkSchedulerJwt.js';
+import checkSchedulerPermission from '../middleware/acl/checkSchedulerPermission.js';
 import hasTimeNotificationsAccess from '../middleware/acl/hasTimeNotificationsAccess.js';
-const router = express.Router();
 
-router.post(
-  '/weekly_unassigned_tasks/:farm_id',
-  checkSchedulerJwt,
-  hasTimeNotificationsAccess,
-  timeNotificationController.postWeeklyUnassignedTasks,
-);
 
-router.post(
-  '/daily_due_today_tasks/:farm_id',
-  checkSchedulerJwt,
-  hasTimeNotificationsAccess,
-  timeNotificationController.postDailyDueTodayTasks,
-);
+export default (router) => ({
+  path: '/time_notification',
+  loader: () => {
+    router.post(
+      '/weekly_unassigned_tasks/:farm_id',
+      checkSchedulerJwt,
+      checkSchedulerPermission('requestTimedNotifications'),
+      timeNotificationController.postWeeklyUnassignedTasks,
+    );
 
-export default router;
+    router.post(
+      '/daily_due_today_tasks/:farm_id',
+      checkSchedulerJwt,
+      checkSchedulerPermission('requestTimedNotifications'),
+      timeNotificationController.postDailyDueTodayTasks,
+    );
+
+    router.post(
+      '/new_irrigation_prescription/:farm_id',
+      checkSchedulerJwt,
+      checkSchedulerPermission('requestTimedNotifications'),
+      timeNotificationController.postDailyNewIrrigationPrescriptions,
+    );
+    return router;
+  },
+});

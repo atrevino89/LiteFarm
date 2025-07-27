@@ -15,49 +15,53 @@
 
 import SaleController from '../controllers/saleController.js';
 
-import express from 'express';
-const router = express.Router();
 import checkScope from '../middleware/acl/checkScope.js';
 import hasFarmAccess from '../middleware/acl/hasFarmAccess.js';
 import validateSale from '../middleware/validation/sale.js';
 import conditionallyApplyMiddleware from '../middleware/acl/conditionally.apply.js';
 import isCreator from '../middleware/acl/isCreator.js';
 
-//TODO fix URL
-router.post(
-  '/',
-  validateSale,
-  hasFarmAccess({ body: 'farm_id' }),
-  checkScope(['add:sales']),
-  SaleController.addSale(),
-);
-router.get(
-  '/:farm_id',
-  hasFarmAccess({ params: 'farm_id' }),
-  checkScope(['get:sales']),
-  SaleController.getSaleByFarmId(),
-);
-router.delete(
-  '/:sale_id',
-  checkScope(['delete:sales']),
-  (req, res, next) =>
-    conditionallyApplyMiddleware(
-      req.role === 3,
-      isCreator({ params: 'sale_id' }),
-      hasFarmAccess({ params: 'sale_id' }),
-    )(req, res, next),
-  SaleController.delSale(),
-);
-router.patch(
-  '/:sale_id',
-  checkScope(['edit:sales']),
-  (req, res, next) =>
-    conditionallyApplyMiddleware(
-      req.role === 3,
-      isCreator({ params: 'sale_id' }),
-      hasFarmAccess({ params: 'sale_id' }),
-    )(req, res, next),
-  SaleController.patchSales(),
-);
 
-export default router;
+export default (router) => ({
+  path: '/sale',
+  loader: () => {
+    //TODO fix URL
+    router.post(
+      '/',
+      validateSale,
+      hasFarmAccess({ body: 'farm_id' }),
+      checkScope(['add:sales']),
+      SaleController.addSale(),
+    );
+    router.get(
+      '/:farm_id',
+      hasFarmAccess({ params: 'farm_id' }),
+      checkScope(['get:sales']),
+      SaleController.getSaleByFarmId(),
+    );
+    router.delete(
+      '/:sale_id',
+      checkScope(['delete:sales']),
+      (req, res, next) =>
+        conditionallyApplyMiddleware(
+          req.role === 3,
+          isCreator({ params: 'sale_id' }),
+          hasFarmAccess({ params: 'sale_id' }),
+        )(req, res, next),
+      SaleController.delSale(),
+    );
+    router.patch(
+      '/:sale_id',
+      checkScope(['edit:sales']),
+      (req, res, next) =>
+        conditionallyApplyMiddleware(
+          req.role === 3,
+          isCreator({ params: 'sale_id' }),
+          hasFarmAccess({ params: 'sale_id' }),
+        )(req, res, next),
+      SaleController.patchSales(),
+    );
+
+    return router;
+  },
+});

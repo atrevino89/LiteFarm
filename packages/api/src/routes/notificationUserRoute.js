@@ -16,12 +16,15 @@
 import NotificationUserController from '../controllers/notificationUserController.js';
 
 import checkUserFarmStatus from '../middleware/acl/checkUserFarmStatus.js';
-import express from 'express';
-const router = express.Router();
 
-router.get('/subscribe', NotificationUserController.subscribeToAlerts);
-router.get('/', checkUserFarmStatus(), NotificationUserController.getNotifications);
-router.patch('/', checkUserFarmStatus(), NotificationUserController.patchNotifications);
-router.patch('/clear_alerts', checkUserFarmStatus(), NotificationUserController.clearAlerts);
+export default (router) => ({
+  path: '/notification_user',
+  loader: () => {
+    router.get('/subscribe', NotificationUserController.subscribeToAlerts);
+    router.get('/', checkUserFarmStatus(), NotificationUserController.getNotifications);
+    router.patch('/', checkUserFarmStatus(), NotificationUserController.patchNotifications);
+    router.patch('/clear_alerts', checkUserFarmStatus(), NotificationUserController.clearAlerts);
 
-export default router;
+    return router;
+  },
+});

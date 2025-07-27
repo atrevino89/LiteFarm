@@ -13,16 +13,28 @@
  *  GNU General Public License for more details, see <https://www.gnu.org/licenses/>.
  */
 
-import express from 'express';
 import checkScope from '../middleware/acl/checkScope.js';
 import IrrigationPrescriptionRequestController from '../controllers/irrigationPrescriptionRequestController.js';
+import checkSchedulerJwt from '../middleware/acl/checkSchedulerJwt.js';
+import checkSchedulerPermission from '../middleware/acl/checkSchedulerPermission.js';
 
-const router = express.Router();
 
-router.post(
-  '/',
-  checkScope(['get:sensors']), // (Optional) - add a new scope for irrigation prescription. However as both sensors and irrigation prescription data is coming from Ensemble with the same authentication rules, sharing scope seems reasonable
-  IrrigationPrescriptionRequestController.initiateFarmIrrigationPrescription(),
-);
+export default (router) => ({
+  path: '', // TODO: this route didn't state any path, might be a placedholder route
+  loader: () => {
+    router.post(
+      '/',
+      checkScope(['get:smart_irrigation']),
+      IrrigationPrescriptionRequestController.initiateFarmIrrigationPrescription(),
+    );
 
-export default router;
+    router.post(
+      '/scheduler',
+      checkSchedulerJwt,
+      checkSchedulerPermission('requestScheduledEndpoint'),
+      IrrigationPrescriptionRequestController.initiateFarmIrrigationPrescription(true),
+    );
+
+    return router;
+  },
+});

@@ -13,9 +13,6 @@
  *  GNU General Public License for more details, see <https://www.gnu.org/licenses/>.
  */
 
-import express from 'express';
-
-const router = express.Router();
 import managementPlanController from '../controllers/managementPlanController.js';
 import checkScope from '../middleware/acl/checkScope.js';
 import hasFarmAccess from '../middleware/acl/hasFarmAccess.js';
@@ -23,83 +20,89 @@ import validateManagementPlanTasks from '../middleware/validation/completeManage
 import validateManagementPlanDependency from '../middleware/validation/deleteManagementPlan.js';
 import { processManagementPlanReq } from '../middleware/validation/managementPlan.js';
 
-router.get(
-  '/:management_plan_id',
-  hasFarmAccess({ params: 'management_plan_id' }),
-  checkScope(['get:management_plan']),
-  managementPlanController.getManagementPlanByID(),
-);
 
-router.get(
-  '/farm/:farm_id',
-  hasFarmAccess({ params: 'farm_id' }),
-  checkScope(['get:management_plan']),
-  managementPlanController.getManagementPlansByFarmId(),
-);
+export default (router) => ({
+  path: '/management_plan',
+  loader: () => {
+    router.get(
+      '/:management_plan_id',
+      hasFarmAccess({ params: 'management_plan_id' }),
+      checkScope(['get:management_plan']),
+      managementPlanController.getManagementPlanByID(),
+    );
 
-router.get(
-  '/farm/date/:farm_id/:date',
-  hasFarmAccess({ params: 'farm_id' }),
-  checkScope(['get:management_plan']),
-  managementPlanController.getManagementPlansByDate(),
-);
+    router.get(
+      '/farm/:farm_id',
+      hasFarmAccess({ params: 'farm_id' }),
+      checkScope(['get:management_plan']),
+      managementPlanController.getManagementPlansByFarmId(),
+    );
 
-router.get(
-  '/expired/farm/:farm_id',
-  hasFarmAccess({ params: 'farm_id' }),
-  checkScope(['get:management_plan']),
-  managementPlanController.getExpiredManagementPlans(),
-);
+    router.get(
+      '/farm/date/:farm_id/:date',
+      hasFarmAccess({ params: 'farm_id' }),
+      checkScope(['get:management_plan']),
+      managementPlanController.getManagementPlansByDate(),
+    );
 
-router.post(
-  '',
-  hasFarmAccess({ body: 'crop_management_plan' }),
-  hasFarmAccess({ body: 'crop_variety_id' }),
-  checkScope(['add:management_plan']),
-  processManagementPlanReq,
-  managementPlanController.addManagementPlan(),
-);
+    router.get(
+      '/expired/farm/:farm_id',
+      hasFarmAccess({ params: 'farm_id' }),
+      checkScope(['get:management_plan']),
+      managementPlanController.getExpiredManagementPlans(),
+    );
 
-router.post(
-  '/repeat_plan',
-  hasFarmAccess({ body: 'management_plan_id' }),
-  checkScope(['add:management_plan']),
-  managementPlanController.repeatManagementPlan(),
-);
+    router.post(
+      '',
+      hasFarmAccess({ body: 'crop_management_plan' }),
+      hasFarmAccess({ body: 'crop_variety_id' }),
+      checkScope(['add:management_plan']),
+      processManagementPlanReq,
+      managementPlanController.addManagementPlan(),
+    );
 
-router.patch(
-  '/:management_plan_id',
-  hasFarmAccess({ params: 'management_plan_id' }),
-  checkScope(['edit:management_plan']),
-  managementPlanController.updateManagementPlan(),
-);
+    router.post(
+      '/repeat_plan',
+      hasFarmAccess({ body: 'management_plan_id' }),
+      checkScope(['add:management_plan']),
+      managementPlanController.repeatManagementPlan(),
+    );
 
-router.delete(
-  '/:management_plan_id',
-  hasFarmAccess({ params: 'management_plan_id' }),
-  checkScope(['delete:management_plan']),
-  managementPlanController.delManagementPlan(),
-);
-router.patch(
-  '/:management_plan_id/complete',
-  hasFarmAccess({ params: 'management_plan_id' }),
-  checkScope(['delete:management_plan']),
-  validateManagementPlanTasks,
-  managementPlanController.completeManagementPlan(),
-);
-router.patch(
-  '/:management_plan_id/abandon',
-  hasFarmAccess({ params: 'management_plan_id' }),
-  checkScope(['delete:management_plan']),
-  managementPlanController.abandonManagementPlan(),
-);
+    router.patch(
+      '/:management_plan_id',
+      hasFarmAccess({ params: 'management_plan_id' }),
+      checkScope(['edit:management_plan']),
+      managementPlanController.updateManagementPlan(),
+    );
 
-router.get(
-  '/check_delete/:management_plan_id',
-  hasFarmAccess({ params: 'management_plan_id' }),
-  checkScope(['delete:management_plan']),
-  validateManagementPlanDependency,
-  managementPlanController.checkDeleteManagementPlan(),
-);
+    router.delete(
+      '/:management_plan_id',
+      hasFarmAccess({ params: 'management_plan_id' }),
+      checkScope(['delete:management_plan']),
+      managementPlanController.delManagementPlan(),
+    );
+    router.patch(
+      '/:management_plan_id/complete',
+      hasFarmAccess({ params: 'management_plan_id' }),
+      checkScope(['delete:management_plan']),
+      validateManagementPlanTasks,
+      managementPlanController.completeManagementPlan(),
+    );
+    router.patch(
+      '/:management_plan_id/abandon',
+      hasFarmAccess({ params: 'management_plan_id' }),
+      checkScope(['delete:management_plan']),
+      managementPlanController.abandonManagementPlan(),
+    );
 
-export default router;
+    router.get(
+      '/check_delete/:management_plan_id',
+      hasFarmAccess({ params: 'management_plan_id' }),
+      checkScope(['delete:management_plan']),
+      validateManagementPlanDependency,
+      managementPlanController.checkDeleteManagementPlan(),
+    );
+
+    return router;
+  },
+});

@@ -13,8 +13,6 @@
  *  GNU General Public License for more details, see <https://www.gnu.org/licenses/>.
  */
 
-import express from 'express';
-
 import multer from 'multer';
 import hasFarmAccess from '../middleware/acl/hasFarmAccess.js';
 import checkScope from '../middleware/acl/checkScope.js';
@@ -26,45 +24,50 @@ import SensorController from '../controllers/sensorController.js';
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
-const router = express.Router();
 
-router.get('/', checkScope(['get:sensors']), SensorController.getSensors);
-router.post(
-  '/',
-  checkScope(['add:sensors']),
-  upload.single('sensors'),
-  SensorController.addSensors,
-);
-router.delete('/:location_id', SensorController.deleteSensor);
-router.patch('/:location_id', SensorController.updateSensorbyID);
-router.post(
-  '/reading/partner/:partner_id/farm/:farm_id',
-  validateRequest,
-  SensorController.addReading,
-);
-router.get(
-  '/readings',
-  checkScope(['get:sensors']),
-  checkSensorReadingsQuery(),
-  SensorController.getSensorReadings,
-);
-router.get('/:location_id/reading', SensorController.getAllReadingsByLocationId);
-router.get('/reading/farm/:farm_id', SensorController.getReadingsByFarmId);
-router.post('/reading/invalidate', SensorController.invalidateReadings);
-router.post(
-  '/unclaim',
-  hasFarmAccess({ body: 'location_id' }),
-  checkScope(['delete:fields']),
-  validateLocationDependency,
-  SensorController.retireSensor,
-);
-router.get('/:location_id/reading_type', SensorController.getSensorReadingTypes);
-router.get('/farm/:farm_id/reading_type', SensorController.getAllSensorReadingTypes);
-router.get('/partner/:partner_id/brand_name', SensorController.getBrandName);
-router.post(
-  '/reading/visualization',
-  hasFarmAccess({ body: 'farm_id' }),
-  hasFarmAccess({ body: 'locationIds' }),
-  SensorController.getAllSensorReadingsByLocationIds,
-);
-export default router;
+export default (router) => ({
+  path: '/sensor',
+  loader: () => {
+    router.get('/', checkScope(['get:sensors']), SensorController.getSensors);
+    router.post(
+      '/',
+      checkScope(['add:sensors']),
+      upload.single('sensors'),
+      SensorController.addSensors,
+    );
+    router.delete('/:location_id', SensorController.deleteSensor);
+    router.patch('/:location_id', SensorController.updateSensorbyID);
+    router.post(
+      '/reading/partner/:partner_id/farm/:farm_id',
+      validateRequest,
+      SensorController.addReading,
+    );
+    router.get(
+      '/readings',
+      checkScope(['get:sensors']),
+      checkSensorReadingsQuery(),
+      SensorController.getSensorReadings,
+    );
+    router.get('/:location_id/reading', SensorController.getAllReadingsByLocationId);
+    router.get('/reading/farm/:farm_id', SensorController.getReadingsByFarmId);
+    router.post('/reading/invalidate', SensorController.invalidateReadings);
+    router.post(
+      '/unclaim',
+      hasFarmAccess({ body: 'location_id' }),
+      checkScope(['delete:fields']),
+      validateLocationDependency,
+      SensorController.retireSensor,
+    );
+    router.get('/:location_id/reading_type', SensorController.getSensorReadingTypes);
+    router.get('/farm/:farm_id/reading_type', SensorController.getAllSensorReadingTypes);
+    router.get('/partner/:partner_id/brand_name', SensorController.getBrandName);
+    router.post(
+      '/reading/visualization',
+      hasFarmAccess({ body: 'farm_id' }),
+      hasFarmAccess({ body: 'locationIds' }),
+      SensorController.getAllSensorReadingsByLocationIds,
+    );
+
+    return router;
+  },
+});

@@ -13,41 +13,44 @@
  *  GNU General Public License for more details, see <https://www.gnu.org/licenses/>.
  */
 
-import express from 'express';
-
-const router = express.Router();
 import farmExpenseTypeController from '../controllers/farmExpenseTypeController.js';
 import checkScope from '../middleware/acl/checkScope.js';
 import hasFarmAccess from '../middleware/acl/hasFarmAccess.js';
 
-router.post(
-  '/',
-  hasFarmAccess({ body: 'farm_id' }),
-  checkScope(['add:expense_types']),
-  farmExpenseTypeController.addFarmExpenseType(),
-);
 
-router.get(
-  '/farm/:farm_id',
-  hasFarmAccess({ params: 'farm_id' }),
-  checkScope(['get:expense_types']),
-  farmExpenseTypeController.getFarmExpenseType(),
-);
+export default (router) => ({
+  path: '/expense_type',
+  loader: () => {
+    router.post(
+      '/',
+      hasFarmAccess({ body: 'farm_id' }),
+      checkScope(['add:expense_types']),
+      farmExpenseTypeController.addFarmExpenseType(),
+    );
 
-router.get('/', checkScope(['get:expense_types']), farmExpenseTypeController.getDefaultTypes());
+    router.get(
+      '/farm/:farm_id',
+      hasFarmAccess({ params: 'farm_id' }),
+      checkScope(['get:expense_types']),
+      farmExpenseTypeController.getFarmExpenseType(),
+    );
 
-router.delete(
-  '/:expense_type_id',
-  hasFarmAccess({ params: 'expense_type_id' }),
-  checkScope(['delete:expense_types']),
-  farmExpenseTypeController.delFarmExpenseType(),
-);
+    router.get('/', checkScope(['get:expense_types']), farmExpenseTypeController.getDefaultTypes());
 
-router.patch(
-  '/:expense_type_id',
-  hasFarmAccess({ params: 'expense_type_id' }),
-  checkScope(['edit:expense_types']),
-  farmExpenseTypeController.updateFarmExpenseType(),
-);
+    router.delete(
+      '/:expense_type_id',
+      hasFarmAccess({ params: 'expense_type_id' }),
+      checkScope(['delete:expense_types']),
+      farmExpenseTypeController.delFarmExpenseType(),
+    );
 
-export default router;
+    router.patch(
+      '/:expense_type_id',
+      hasFarmAccess({ params: 'expense_type_id' }),
+      checkScope(['edit:expense_types']),
+      farmExpenseTypeController.updateFarmExpenseType(),
+    );
+
+    return router;
+  },
+});

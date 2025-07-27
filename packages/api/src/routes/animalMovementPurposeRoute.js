@@ -13,11 +13,14 @@
  *  GNU General Public License for more details, see <https://www.gnu.org/licenses/>.
  */
 
-import express from 'express';
-
-const router = express.Router();
 import animalMovementPurposeController from '../controllers/animalMovementPurposeController.js';
 
-router.get('/', animalMovementPurposeController.getAnimalMovementPurposes());
 
-export default router;
+export default (router) => ({
+  path: '/animal_movement_purposes',
+  loader: () => {
+    router.get('/', animalMovementPurposeController.getAnimalMovementPurposes());
+
+    return router;
+  },
+});

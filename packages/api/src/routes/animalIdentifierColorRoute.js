@@ -13,16 +13,18 @@
  *  GNU General Public License for more details, see <https://www.gnu.org/licenses/>.
  */
 
-import express from 'express';
-
-const router = express.Router();
 import checkScope from '../middleware/acl/checkScope.js';
 import animalIdentifierColorController from '../controllers/animalIdentifierColorController.js';
 
-router.get(
-  '/',
-  checkScope(['get:animal_identifier_colors']),
-  animalIdentifierColorController.getAnimalIdentifierColors(),
-);
+export default (router) => ({
+  path: '/animal_identifier_colors',
+  loader: () => {
+    router.get(
+      '/',
+      checkScope(['get:animal_identifier_colors']),
+      animalIdentifierColorController.getAnimalIdentifierColors(),
+    );
 
-export default router;
+   return router;
+  },
+});
